@@ -10,8 +10,16 @@ fn solve_a(numbers: &[i32]) -> usize {
     c
 }
 
-fn solve_b(numbers: &[i32]) -> i32 {
-    unreachable!();
+fn solve_b(numbers: &[i32]) -> usize {
+    let mut c = 0;
+    for i in 3..numbers.len() {
+        if numbers[i - 3] + numbers[i - 2] + numbers[i - 1]
+            < numbers[i - 2] + numbers[i - 1] + numbers[i]
+        {
+            c += 1;
+        }
+    }
+    c
 }
 
 pub fn solve(lines: &[String]) -> Solution {
@@ -20,5 +28,5 @@ pub fn solve(lines: &[String]) -> Solution {
         .map(|line| line.parse::<i32>().unwrap())
         .collect();
 
-    (solve_a(&numbers).to_string(), 0.to_string())
+    (solve_a(&numbers).to_string(), solve_b(&numbers).to_string())
 }
