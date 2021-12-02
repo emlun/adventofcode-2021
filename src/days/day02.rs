@@ -2,13 +2,15 @@ use crate::common::Solution;
 
 fn solve_a(instructions: &[String]) -> i64 {
     let mut x: i64 = 0;
-    let mut y = 0;
+    let mut y: i64 = 0;
     for ins in instructions {
         let mut splits = ins.split_whitespace();
-        match (splits.next(), splits.next()) {
-            (Some("forward"), Some(dx)) => x += dx.parse::<i64>().unwrap(),
-            (Some("down"), Some(dy)) => y += dy.parse::<i64>().unwrap(),
-            (Some("up"), Some(dy)) => y -= dy.parse::<i64>().unwrap(),
+        let word = splits.next().unwrap();
+        let arg: i64 = splits.next().unwrap().parse().unwrap();
+        match word {
+            "forward" => x += arg,
+            "down" => y += arg,
+            "up" => y -= arg,
             _ => unreachable!(),
         }
     }
@@ -17,18 +19,19 @@ fn solve_a(instructions: &[String]) -> i64 {
 
 fn solve_b(instructions: &[String]) -> i64 {
     let mut x: i64 = 0;
-    let mut y = 0;
+    let mut y: i64 = 0;
     let mut a: i64 = 0;
     for ins in instructions {
         let mut splits = ins.split_whitespace();
-        match (splits.next(), splits.next()) {
-            (Some("forward"), Some(dx)) => {
-                let dx = dx.parse::<i64>().unwrap();
-                x += dx;
-                y += a * dx;
+        let word = splits.next().unwrap();
+        let arg: i64 = splits.next().unwrap().parse().unwrap();
+        match word {
+            "forward" => {
+                x += arg;
+                y += a * arg;
             }
-            (Some("down"), Some(dy)) => a += dy.parse::<i64>().unwrap(),
-            (Some("up"), Some(dy)) => a -= dy.parse::<i64>().unwrap(),
+            "down" => a += arg,
+            "up" => a -= arg,
             _ => unreachable!(),
         }
     }
