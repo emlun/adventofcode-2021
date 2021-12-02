@@ -1,43 +1,29 @@
 use crate::common::Solution;
 
-fn solve_a(instructions: &[String]) -> i64 {
+pub fn solve(lines: &[String]) -> Solution {
     let mut x: i64 = 0;
-    let mut y: i64 = 0;
-    for ins in instructions {
-        let mut splits = ins.split_whitespace();
-        let word = splits.next().unwrap();
-        let arg: i64 = splits.next().unwrap().parse().unwrap();
-        match word {
-            "forward" => x += arg,
-            "down" => y += arg,
-            "up" => y -= arg,
-            _ => unreachable!(),
-        }
-    }
-    x * y
-}
-
-fn solve_b(instructions: &[String]) -> i64 {
-    let mut x: i64 = 0;
-    let mut y: i64 = 0;
-    let mut a: i64 = 0;
-    for ins in instructions {
+    let mut ay: i64 = 0;
+    let mut by: i64 = 0;
+    let mut aim: i64 = 0;
+    for ins in lines {
         let mut splits = ins.split_whitespace();
         let word = splits.next().unwrap();
         let arg: i64 = splits.next().unwrap().parse().unwrap();
         match word {
             "forward" => {
                 x += arg;
-                y += a * arg;
+                by += aim * arg;
             }
-            "down" => a += arg,
-            "up" => a -= arg,
+            "down" => {
+                ay += arg;
+                aim += arg;
+            }
+            "up" => {
+                ay -= arg;
+                aim -= arg;
+            }
             _ => unreachable!(),
         }
     }
-    x * y
-}
-
-pub fn solve(lines: &[String]) -> Solution {
-    (solve_a(lines).to_string(), solve_b(lines).to_string())
+    ((x * ay).to_string(), (x * by).to_string())
 }
