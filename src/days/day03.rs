@@ -27,30 +27,30 @@ pub fn solve(lines: &[String]) -> Solution {
 
     let (gamma, epsilon) = solve_a(bitlen, &input_nums);
 
-    let mut oxy_candidates: HashSet<usize> = input_nums.clone();
-    for i in (0..bitlen).rev() {
-        let (g, e) = solve_a(bitlen, &oxy_candidates);
-        oxy_candidates = oxy_candidates
-            .into_iter()
-            .filter(|o| (o & (1 << i)) == (g & (1 << i)))
-            .collect();
-        if oxy_candidates.len() == 1 {
-            break;
+    let oxy_candidates: HashSet<usize> = (0..bitlen).rev().fold(input_nums.clone(), |cands, i| {
+        if cands.len() == 1 {
+            cands
+        } else {
+            let (g, _) = solve_a(bitlen, &cands);
+            cands
+                .into_iter()
+                .filter(|o| (o & (1 << i)) == (g & (1 << i)))
+                .collect()
         }
-    }
+    });
     let oxy = oxy_candidates.into_iter().next().unwrap();
 
-    let mut co2_candidates: HashSet<usize> = input_nums.clone();
-    for i in (0..bitlen).rev() {
-        let (g, e) = solve_a(bitlen, &co2_candidates);
-        co2_candidates = co2_candidates
-            .into_iter()
-            .filter(|o| (o & (1 << i)) == (e & (1 << i)))
-            .collect();
-        if co2_candidates.len() == 1 {
-            break;
+    let co2_candidates: HashSet<usize> = (0..bitlen).rev().fold(input_nums.clone(), |cands, i| {
+        if cands.len() == 1 {
+            cands
+        } else {
+            let (_, e) = solve_a(bitlen, &cands);
+            cands
+                .into_iter()
+                .filter(|o| (o & (1 << i)) == (e & (1 << i)))
+                .collect()
         }
-    }
+    });
     let co2 = co2_candidates.into_iter().next().unwrap();
 
     ((gamma * epsilon).to_string(), (oxy * co2).to_string())
