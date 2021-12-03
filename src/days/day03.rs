@@ -1,29 +1,57 @@
 use crate::common::Solution;
+use std::collections::HashSet;
 
-fn solve_a(lines: &[String]) -> usize {
-    let mut counts = vec![0; lines[0].len()];
-    for line in lines {
-        for (i, c) in line.chars().enumerate() {
-            if c == '1' {
-                counts[i] += 1;
+pub fn solve_a(bitlen: usize, nums: &HashSet<usize>) -> (usize, usize) {
+    let threshold = nums.len() / 2 + (nums.len() % 2);
+    let gamma: usize = (0..bitlen)
+        .map(|i| {
+            let mask: usize = 1 << i;
+            if nums.iter().filter(|n| **n & mask != 0).count() >= threshold {
+                1 << i
+            } else {
+                0
             }
-        }
-    }
-    let mut gamma: usize = 0;
-    for i in 0..lines[0].len() {
-        gamma <<= 1;
-        if counts[i] > lines.len() / 2 {
-            gamma |= 1;
-        }
-    }
-    let epsilon: usize = (!gamma) & ((1 << lines[0].len()) - 1);
-    gamma * epsilon
-}
+        })
+        .sum();
+    let epsilon: usize = (!gamma) & ((1 << bitlen) - 1);
 
-fn solve_b(lines: &[String]) -> usize {
-    0
+    (gamma, epsilon)
 }
 
 pub fn solve(lines: &[String]) -> Solution {
-    (solve_a(&lines).to_string(), solve_b(&lines).to_string())
+    let bitlen = lines[0].len();
+    let input_nums: HashSet<usize> = lines
+        .iter()
+        .map(|l| usize::from_str_radix(l, 2).unwrap())
+        .collect();
+
+    let (gamma, epsilon) = solve_a(bitlen, &input_nums);
+
+    let mut oxy_candidates: HashSet<usize> = input_nums.clone();
+    for i in (0..bitlen).rev() {
+        let (g, e) = solve_a(bitlen, &oxy_candidates);
+        oxy_candidates = oxy_candidates
+            .into_iter()
+            .filter(|o| (o & (1 << i)) == (g & (1 << i)))
+            .collect();
+        if oxy_candidates.len() == 1 {
+            break;
+        }
+    }
+    let oxy = oxy_candidates.into_iter().next().unwrap();
+
+    let mut co2_candidates: HashSet<usize> = input_nums.clone();
+    for i in (0..bitlen).rev() {
+        let (g, e) = solve_a(bitlen, &co2_candidates);
+        co2_candidates = co2_candidates
+            .into_iter()
+            .filter(|o| (o & (1 << i)) == (e & (1 << i)))
+            .collect();
+        if co2_candidates.len() == 1 {
+            break;
+        }
+    }
+    let co2 = co2_candidates.into_iter().next().unwrap();
+
+    ((gamma * epsilon).to_string(), (oxy * co2).to_string())
 }
