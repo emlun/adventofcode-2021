@@ -27,30 +27,38 @@ pub fn solve(lines: &[String]) -> Solution {
 
     let (gamma, epsilon) = solve_a(bitlen, &input_nums);
 
-    let oxy_candidates: HashSet<usize> = (0..bitlen).rev().fold(input_nums.clone(), |cands, i| {
-        if cands.len() == 1 {
-            cands
-        } else {
-            let (g, _) = solve_a(bitlen, &cands);
-            cands
-                .into_iter()
-                .filter(|o| (o & (1 << i)) == (g & (1 << i)))
-                .collect()
-        }
-    });
+    let oxy_candidates: HashSet<usize> =
+        (0..bitlen)
+            .rev()
+            .map(|i| 1 << i)
+            .fold(input_nums.clone(), |cands, mask| {
+                if cands.len() == 1 {
+                    cands
+                } else {
+                    let (g, _) = solve_a(bitlen, &cands);
+                    cands
+                        .into_iter()
+                        .filter(|o| (o & mask) == (g & mask))
+                        .collect()
+                }
+            });
     let oxy = oxy_candidates.into_iter().next().unwrap();
 
-    let co2_candidates: HashSet<usize> = (0..bitlen).rev().fold(input_nums.clone(), |cands, i| {
-        if cands.len() == 1 {
-            cands
-        } else {
-            let (_, e) = solve_a(bitlen, &cands);
-            cands
-                .into_iter()
-                .filter(|o| (o & (1 << i)) == (e & (1 << i)))
-                .collect()
-        }
-    });
+    let co2_candidates: HashSet<usize> =
+        (0..bitlen)
+            .rev()
+            .map(|i| 1 << i)
+            .fold(input_nums.clone(), |cands, mask| {
+                if cands.len() == 1 {
+                    cands
+                } else {
+                    let (_, e) = solve_a(bitlen, &cands);
+                    cands
+                        .into_iter()
+                        .filter(|o| (o & mask) == (e & mask))
+                        .collect()
+                }
+            });
     let co2 = co2_candidates.into_iter().next().unwrap();
 
     ((gamma * epsilon).to_string(), (oxy * co2).to_string())
