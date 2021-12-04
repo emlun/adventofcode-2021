@@ -16,9 +16,12 @@ impl Board {
     }
 }
 
-fn solve_a(side: usize, draws: &[usize], mut boards: Vec<Board>) -> usize {
+fn solve_sub(side: usize, draws: &[usize], mut boards: Vec<Board>) -> (usize, usize) {
+    let mut scores = vec![None; boards.len()];
+    let mut first_score = None;
+
     for drawn in draws {
-        for board in boards.iter_mut() {
+        for (board_i, board) in boards.iter_mut().enumerate() {
             if let Some(pos) = board.tiles[*drawn] {
                 let (r, c) = pos;
                 board.rows[r].push(pos);
@@ -34,17 +37,23 @@ fn solve_a(side: usize, draws: &[usize], mut boards: Vec<Board>) -> usize {
                         .filter(|(_, pos)| pos.is_some())
                         .filter(|(_, pos)| !marked.contains(&pos.unwrap()))
                         .map(|(i, _)| i)
-                        .sum();
-                    return score * drawn;
+                        .sum::<usize>()
+                        * drawn;
+
+                    if first_score.is_none() {
+                        first_score = Some(score);
+                    }
+                    if scores[board_i].is_none() {
+                        scores[board_i] = Some(score);
+                        if scores.iter().all(|s| s.is_some()) {
+                            return (first_score.unwrap(), score);
+                        }
+                    }
                 }
             }
         }
     }
-    0
-}
-
-fn solve_b(lines: &[String]) -> usize {
-    0
+    unreachable!();
 }
 
 pub fn solve(lines: &[String]) -> Solution {
@@ -70,8 +79,6 @@ pub fn solve(lines: &[String]) -> Solution {
                 }
             },
         );
-    (
-        solve_a(side, &draws, boards).to_string(),
-        solve_b(lines).to_string(),
-    )
+    let (first, last) = solve_sub(side, &draws, boards);
+    (first.to_string(), last.to_string())
 }
