@@ -4,14 +4,14 @@ use std::collections::HashSet;
 struct Board {
     tiles: Vec<Option<(usize, usize)>>,
     rows: Vec<Vec<(usize, usize)>>,
-    cols: Vec<Vec<(usize, usize)>>,
+    cols: Vec<usize>,
 }
 impl Board {
     fn new(board: Vec<Option<(usize, usize)>>, side: usize) -> Self {
         Self {
             tiles: board,
             rows: vec![vec![]; side],
-            cols: vec![vec![]; side],
+            cols: vec![0; side],
         }
     }
 }
@@ -25,9 +25,9 @@ fn play(side: usize, draws: &[usize], mut boards: Vec<Board>) -> (usize, usize) 
             if let Some(pos) = board.tiles[*drawn] {
                 let (r, c) = pos;
                 board.rows[r].push(pos);
-                board.cols[c].push(pos);
+                board.cols[c] += 1;
 
-                if board.rows[r].len() == side || board.cols[c].len() == side {
+                if board.rows[r].len() == side || board.cols[c] == side {
                     let marked: HashSet<(usize, usize)> =
                         board.rows.iter().flatten().copied().collect();
                     let score: usize = board
