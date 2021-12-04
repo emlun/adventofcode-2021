@@ -1,7 +1,6 @@
 use crate::common::Solution;
-use std::collections::HashSet;
 
-pub fn solve_a(bitlen: usize, nums: &HashSet<usize>) -> (usize, usize) {
+pub fn solve_a(bitlen: usize, nums: &Vec<usize>) -> (usize, usize) {
     let threshold = nums.len() / 2 + (nums.len() % 2);
     let gamma: usize = (0..bitlen)
         .map(|i| {
@@ -20,14 +19,14 @@ pub fn solve_a(bitlen: usize, nums: &HashSet<usize>) -> (usize, usize) {
 
 pub fn solve(lines: &[String]) -> Solution {
     let bitlen = lines[0].len();
-    let input_nums: HashSet<usize> = lines
+    let input_nums: Vec<usize> = lines
         .iter()
         .map(|l| usize::from_str_radix(l, 2).unwrap())
         .collect();
 
     let (gamma, epsilon) = solve_a(bitlen, &input_nums);
 
-    let oxy_candidates: HashSet<usize> =
+    let oxy_candidates: Vec<usize> =
         (0..bitlen)
             .rev()
             .map(|i| 1 << i)
@@ -44,7 +43,7 @@ pub fn solve(lines: &[String]) -> Solution {
             });
     let oxy = oxy_candidates.into_iter().next().unwrap();
 
-    let co2_candidates: HashSet<usize> =
+    let co2_candidates: Vec<usize> =
         (0..bitlen)
             .rev()
             .map(|i| 1 << i)
