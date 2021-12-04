@@ -16,7 +16,7 @@ impl Board {
     }
 }
 
-fn solve_sub(side: usize, draws: &[usize], mut boards: Vec<Board>) -> (usize, usize) {
+fn play(side: usize, draws: &[usize], mut boards: Vec<Board>) -> (usize, usize) {
     let mut scores = vec![None; boards.len()];
     let mut first_score = None;
 
@@ -79,6 +79,6 @@ pub fn solve(lines: &[String]) -> Solution {
                 }
             },
         );
-    let (first, last) = solve_sub(side, &draws, boards);
+    let (first, last) = play(side, &draws, boards);
     (first.to_string(), last.to_string())
 }
