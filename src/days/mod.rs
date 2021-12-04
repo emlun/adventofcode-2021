@@ -12,7 +12,7 @@ macro_rules! days {
 }
 
 pub fn all_numbers() -> Vec<u8> {
-    (1..=3).filter(|&day| get_solver(day).is_some()).collect()
+    (1..=25).filter(|&day| get_solver(day).is_some()).collect()
 }
 
 days!(day01, day02, day03);
