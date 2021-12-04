@@ -34,8 +34,8 @@ fn play(side: usize, draws: &[usize], mut boards: Vec<Board>) -> (usize, usize) 
                         .tiles
                         .iter()
                         .enumerate()
-                        .filter(|(_, pos)| pos.is_some())
-                        .filter(|(_, pos)| !marked.contains(&pos.unwrap()))
+                        .flat_map(|(i, pos)| pos.map(|p| (i, p)))
+                        .filter(|(_, pos)| !marked.contains(pos))
                         .map(|(i, _)| i)
                         .sum::<usize>()
                         * drawn;
