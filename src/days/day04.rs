@@ -57,10 +57,10 @@ fn play(side: usize, draws: &[usize], mut boards: Vec<Board>) -> (usize, usize) 
 }
 
 pub fn solve(lines: &[String]) -> Solution {
-    let draws: Vec<usize> = lines[0].split(",").map(|s| s.parse().unwrap()).collect();
+    let draws: Vec<usize> = lines[0].split(',').map(|s| s.parse().unwrap()).collect();
     let maxnum: usize = *draws.iter().max().unwrap();
     let side = lines[2].split_whitespace().count();
-    let (boards, _, _): (Vec<Board>, Vec<Option<(usize, usize)>>, usize) = lines[2..]
+    let (boards, _, _) = lines[2..]
         .iter()
         .filter(|l| !l.is_empty())
         .flat_map(|l| l.split_whitespace())

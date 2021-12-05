@@ -1,6 +1,6 @@
 use crate::common::Solution;
 
-pub fn solve_a(bitlen: usize, nums: &Vec<usize>) -> (usize, usize) {
+pub fn solve_a(bitlen: usize, nums: &[usize]) -> (usize, usize) {
     let threshold = nums.len() / 2 + (nums.len() % 2);
     let gamma: usize = (0..bitlen)
         .map(|i| {
@@ -47,7 +47,7 @@ pub fn solve(lines: &[String]) -> Solution {
         (0..bitlen)
             .rev()
             .map(|i| 1 << i)
-            .fold(input_nums.clone(), |cands, mask| {
+            .fold(input_nums, |cands, mask| {
                 if cands.len() == 1 {
                     cands
                 } else {
