@@ -1,6 +1,5 @@
 use crate::common::Solution;
 use std::collections::HashMap;
-use std::collections::HashSet;
 
 fn solve_sub<'a, I: Iterator<Item = &'a ((i64, i64), (i64, i64))>>(segments: I) -> usize {
     let mut point_counts: HashMap<(i64, i64), usize> = HashMap::new();
@@ -49,7 +48,7 @@ pub fn solve(lines: &[String]) -> Solution {
         .map(|l| {
             let mut splits = l
                 .split(" -> ")
-                .flat_map(|part| part.split(","))
+                .flat_map(|part| part.split(','))
                 .map(|s| s.parse().unwrap());
             (
                 (splits.next().unwrap(), splits.next().unwrap()),
