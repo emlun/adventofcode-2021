@@ -1,13 +1,11 @@
 use crate::common::Solution;
 
-fn simulate(fishes: Vec<usize>, days: usize) -> usize {
-    let fishes_after: Vec<usize> = (0..days).fold(fishes, |mut fishes, day| {
+fn simulate(fishes: Vec<usize>, start_day: usize, days: usize) -> Vec<usize> {
+    (start_day..days).fold(fishes, |mut fishes, day| {
         let i0 = day % 9;
         fishes[(i0 + 7) % 9] += fishes[i0];
         fishes
-    });
-
-    fishes_after.into_iter().sum()
+    })
 }
 
 pub fn solve(lines: &[String]) -> Solution {
@@ -21,8 +19,10 @@ pub fn solve(lines: &[String]) -> Solution {
             fishes
         });
 
-    (
-        simulate(fishes.clone(), 80).to_string(),
-        simulate(fishes, 256).to_string(),
-    )
+    let fishes_a = simulate(fishes, 0, 80);
+    let solution_a: usize = fishes_a.iter().sum();
+    let fishes_b = simulate(fishes_a, 80, 256);
+    let solution_b: usize = fishes_b.into_iter().sum();
+
+    (solution_a.to_string(), solution_b.to_string())
 }
