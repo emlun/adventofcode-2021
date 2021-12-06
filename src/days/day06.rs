@@ -1,11 +1,11 @@
 use crate::common::Solution;
 
-fn simulate(fishes: Vec<usize>, start_day: usize, days: usize) -> Vec<usize> {
-    (start_day..days).fold(fishes, |mut fishes, day| {
+fn simulate(mut fishes: Vec<usize>, start_day: usize, days: usize) -> Vec<usize> {
+    for day in start_day..days {
         let i0 = day % 9;
         fishes[(i0 + 7) % 9] += fishes[i0];
-        fishes
-    })
+    }
+    fishes
 }
 
 pub fn solve(lines: &[String]) -> Solution {
