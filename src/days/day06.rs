@@ -1,10 +1,9 @@
 use crate::common::Solution;
 
 fn simulate(fishes: Vec<usize>, days: usize) -> usize {
-    let fishes_after: Vec<usize> = (0..days).fold(fishes, |mut fishes, _| {
-        let zeros = fishes.remove(0);
-        fishes[6] += zeros;
-        fishes.push(zeros);
+    let fishes_after: Vec<usize> = (0..days).fold(fishes, |mut fishes, day| {
+        let i0 = day % 9;
+        fishes[(i0 + 7) % 9] += fishes[i0];
         fishes
     });
 
