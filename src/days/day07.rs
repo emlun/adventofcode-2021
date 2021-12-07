@@ -10,11 +10,13 @@ pub fn solve(lines: &[String]) -> Solution {
 
     let minx: i64 = *crabs.iter().min().unwrap();
     let maxx: i64 = *crabs.iter().max().unwrap();
-    let sol_a = (minx..=maxx)
-        .map(|x0| crabs.iter().map(|x| (*x - x0).abs()).sum::<i64>())
+
+    let sol_a: i64 = (minx..=maxx)
+        .map(|x0| crabs.iter().map(|x| (*x - x0).abs()).sum())
         .min()
         .unwrap();
-    let sol_b = (minx..=maxx)
+
+    let sol_b: i64 = (minx..=maxx)
         .map(|x0| {
             crabs
                 .iter()
@@ -22,7 +24,7 @@ pub fn solve(lines: &[String]) -> Solution {
                     let n = (*x - x0).abs();
                     n * (n + 1) / 2
                 })
-                .sum::<i64>()
+                .sum()
         })
         .min()
         .unwrap();
