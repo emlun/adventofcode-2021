@@ -2,8 +2,6 @@ use crate::common::Solution;
 use std::collections::HashMap;
 
 fn analyze_entry(unidentified: Vec<u8>, output: &[u8]) -> u64 {
-    const ALL: u8 = 0x7f;
-
     let (mut identified, twothreefive, zerosixnine): (HashMap<u8, u8>, Vec<u8>, Vec<u8>) =
         unidentified.into_iter().fold(
             (HashMap::new(), Vec::new(), Vec::new()),
@@ -39,32 +37,26 @@ fn analyze_entry(unidentified: Vec<u8>, output: &[u8]) -> u64 {
         .map(|(k, _)| k)
         .unwrap();
 
-    let topright: u8 = one & zerosixnine.iter().fold(ALL, |acc, zsn| acc ^ zsn);
+    let (three, twofive): (Vec<u8>, Vec<u8>) =
+        twothreefive.into_iter().partition(|ttf| ttf & one == one);
+    let three = three[0];
 
-    let (five, twothree): (Vec<u8>, Vec<u8>) = twothreefive
+    let (nine, zerosix): (Vec<u8>, Vec<u8>) = zerosixnine
         .into_iter()
-        .partition(|ttf| ttf & topright == 0);
+        .partition(|zsn| zsn & three == three);
+    let nine = nine[0];
 
-    let btm_right: u8 = one ^ topright;
-    let btm_left: u8 = twothree.iter().fold(0, |acc, tt| acc ^ tt) ^ btm_right;
+    let (five, two): (Vec<u8>, Vec<u8>) = twofive.into_iter().partition(|tf| tf & nine == *tf);
+    let five = five[0];
 
-    let (three, two): (Vec<u8>, Vec<u8>) = twothree
-        .into_iter()
-        .partition(|tt| tt & btm_right == btm_right);
-
-    let (nine, zerosix): (Vec<u8>, Vec<u8>) =
-        zerosixnine.into_iter().partition(|zsn| zsn & btm_left == 0);
-
-    let (zero, six): (Vec<u8>, Vec<u8>) = zerosix
-        .into_iter()
-        .partition(|zs| zs & topright == topright);
+    let (six, zero): (Vec<u8>, Vec<u8>) = zerosix.into_iter().partition(|zs| zs & five == five);
 
     identified.insert(zero[0], 0);
     identified.insert(two[0], 2);
-    identified.insert(three[0], 3);
-    identified.insert(five[0], 5);
+    identified.insert(three, 3);
+    identified.insert(five, 5);
     identified.insert(six[0], 6);
-    identified.insert(nine[0], 9);
+    identified.insert(nine, 9);
 
     output.iter().fold(0, |num, digit| {
         num * 10 + u64::from(*identified.get(digit).unwrap())
