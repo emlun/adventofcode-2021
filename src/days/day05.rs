@@ -6,12 +6,12 @@ fn solve_sub<'a, I: Iterator<Item = &'a ((i64, i64), (i64, i64))>>(segments: I) 
     let mut diag_point_counts: HashMap<(i64, i64), usize> = HashMap::new();
     for ((x1, y1), (x2, y2)) in segments {
         if x1 == x2 {
-            for (x, y) in (std::cmp::min(*y1, *y2)..=std::cmp::max(*y1, *y2)).map(|y| (x1, y)) {
-                *straight_point_counts.entry((*x, y)).or_insert(0) += 1;
+            for y in std::cmp::min(*y1, *y2)..=std::cmp::max(*y1, *y2) {
+                *straight_point_counts.entry((*x1, y)).or_insert(0) += 1;
             }
         } else if y1 == y2 {
-            for (x, y) in (std::cmp::min(*x1, *x2)..=std::cmp::max(*x1, *x2)).map(|x| (x, y1)) {
-                *straight_point_counts.entry((x, *y)).or_insert(0) += 1;
+            for x in std::cmp::min(*x1, *x2)..=std::cmp::max(*x1, *x2) {
+                *straight_point_counts.entry((x, *y1)).or_insert(0) += 1;
             }
         } else {
             let xs = std::cmp::min(*x1, *x2)..=std::cmp::max(*x1, *x2);
