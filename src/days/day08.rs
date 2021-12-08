@@ -1,14 +1,13 @@
 use crate::common::Solution;
 use std::collections::HashMap;
-use std::collections::HashSet;
 
-fn analyze_entry(unidentified: HashSet<String>, output: &[String]) -> u64 {
-    let (mut identified, mut twothreefive, mut zerosixnine): (
+fn analyze_entry(unidentified: Vec<String>, output: &[String]) -> u64 {
+    let (mut identified, twothreefive, zerosixnine): (
         HashMap<String, u8>,
-        HashSet<String>,
-        HashSet<String>,
+        Vec<String>,
+        Vec<String>,
     ) = unidentified.into_iter().fold(
-        (HashMap::new(), HashSet::new(), HashSet::new()),
+        (HashMap::new(), Vec::new(), Vec::new()),
         |(mut identified, mut twothreefive, mut zerosixnine), next| {
             match next.len() {
                 2 => {
@@ -24,10 +23,10 @@ fn analyze_entry(unidentified: HashSet<String>, output: &[String]) -> u64 {
                     identified.insert(next, 8);
                 }
                 5 => {
-                    twothreefive.insert(next);
+                    twothreefive.push(next);
                 }
                 6 => {
-                    zerosixnine.insert(next);
+                    zerosixnine.push(next);
                 }
                 _ => unreachable!(),
             };
@@ -43,18 +42,15 @@ fn analyze_entry(unidentified: HashSet<String>, output: &[String]) -> u64 {
                 && zerosixnine.iter().filter(|s| s.contains(*c)).count() == 3
         })
         .unwrap();
-    let five: String = twothreefive
-        .iter()
-        .find(|s| s.contains(five_discriminator))
-        .unwrap()
-        .clone();
-    identified.insert(twothreefive.take(&five).unwrap(), 5);
+    let (five, twothree): (Vec<String>, Vec<String>) = twothreefive
+        .into_iter()
+        .partition(|s| s.contains(five_discriminator));
 
-    let two_discriminator: char = twothreefive
+    let two_discriminator: char = twothree
         .iter()
         .flat_map(|s| s.chars())
         .find(|c| {
-            twothreefive
+            twothree
                 .iter()
                 .flat_map(|s| s.chars())
                 .filter(|c2| c2 == c)
@@ -68,23 +64,18 @@ fn analyze_entry(unidentified: HashSet<String>, output: &[String]) -> u64 {
                     == 2
         })
         .unwrap();
-    let (two, three): (String, String) = twothreefive
+    let (two, three): (String, String) = twothree
         .into_iter()
         .partition(|tt| tt.contains(two_discriminator));
-    identified.insert(two, 2);
-    identified.insert(three, 3);
 
-    let nine: String = zerosixnine
-        .iter()
-        .find(|zsn| !zsn.contains(two_discriminator))
-        .unwrap()
-        .clone();
-    identified.insert(zerosixnine.take(&nine).unwrap(), 9);
+    let (nine, zerosix): (Vec<String>, Vec<String>) = zerosixnine
+        .into_iter()
+        .partition(|zsn| !zsn.contains(two_discriminator));
 
-    let zero_discriminator: char = nine
+    let zero_discriminator: char = nine[0]
         .chars()
         .find(|n| {
-            zerosixnine
+            zerosix
                 .iter()
                 .flat_map(|s| s.chars())
                 .filter(|c| c == n)
@@ -99,11 +90,16 @@ fn analyze_entry(unidentified: HashSet<String>, output: &[String]) -> u64 {
                     == 1
         })
         .unwrap();
-    let (zero, six): (String, String) = zerosixnine
+    let (zero, six): (String, String) = zerosix
         .into_iter()
         .partition(|zs| zs.chars().any(|c| c == zero_discriminator));
+
     identified.insert(zero, 0);
+    identified.insert(two, 2);
+    identified.insert(three, 3);
+    identified.insert(five.into_iter().next().unwrap(), 5);
     identified.insert(six, 6);
+    identified.insert(nine.into_iter().next().unwrap(), 9);
 
     output.into_iter().fold(0, |num, digit| {
         num * 10 + u64::from(*identified.get(digit).unwrap())
@@ -111,7 +107,7 @@ fn analyze_entry(unidentified: HashSet<String>, output: &[String]) -> u64 {
 }
 
 pub fn solve(lines: &[String]) -> Solution {
-    let entries: Vec<(HashSet<String>, Vec<String>)> = lines
+    let entries: Vec<(Vec<String>, Vec<String>)> = lines
         .iter()
         .filter(|l| !l.is_empty())
         .map(|l| {
