@@ -35,7 +35,7 @@ fn analyze_entry(unidentified: HashSet<String>, output: &[String]) -> u64 {
         },
     );
 
-    let five_discriminator = twothreefive
+    let five_discriminator: char = twothreefive
         .iter()
         .flat_map(|s| s.chars())
         .find(|c| {
@@ -50,31 +50,24 @@ fn analyze_entry(unidentified: HashSet<String>, output: &[String]) -> u64 {
         .clone();
     identified.insert(twothreefive.take(&five).unwrap(), 5);
 
-    let twothree_discriminators: Vec<char> = twothreefive
+    let two_discriminator: char = twothreefive
         .iter()
         .flat_map(|s| s.chars())
-        .filter(|c| {
+        .find(|c| {
             twothreefive
                 .iter()
                 .flat_map(|s| s.chars())
                 .filter(|c2| c2 == c)
                 .count()
                 == 1
-        })
-        .collect();
-
-    let two_discriminator: char = twothree_discriminators
-        .into_iter()
-        .find(|c| {
-            zerosixnine
-                .iter()
-                .flat_map(|s| s.chars())
-                .filter(|c2| c2 == c)
-                .count()
-                == 2
+                && zerosixnine
+                    .iter()
+                    .flat_map(|s| s.chars())
+                    .filter(|c2| c2 == c)
+                    .count()
+                    == 2
         })
         .unwrap();
-
     let two: String = twothreefive
         .iter()
         .find(|ttf| ttf.contains(two_discriminator))
