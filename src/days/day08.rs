@@ -1,102 +1,70 @@
 use crate::common::Solution;
 use std::collections::HashMap;
 
-fn analyze_entry(unidentified: Vec<String>, output: &[String]) -> u64 {
-    let (mut identified, twothreefive, zerosixnine): (
-        HashMap<String, u8>,
-        Vec<String>,
-        Vec<String>,
-    ) = unidentified.into_iter().fold(
-        (HashMap::new(), Vec::new(), Vec::new()),
-        |(mut identified, mut twothreefive, mut zerosixnine), next| {
-            match next.len() {
-                2 => {
-                    identified.insert(next, 1);
-                }
-                3 => {
-                    identified.insert(next, 7);
-                }
-                4 => {
-                    identified.insert(next, 4);
-                }
-                7 => {
-                    identified.insert(next, 8);
-                }
-                5 => {
-                    twothreefive.push(next);
-                }
-                6 => {
-                    zerosixnine.push(next);
-                }
-                _ => unreachable!(),
-            };
-            (identified, twothreefive, zerosixnine)
-        },
-    );
+fn analyze_entry(unidentified: Vec<u8>, output: &[u8]) -> u64 {
+    const ALL: u8 = 0x7f;
 
-    let five_discriminator: char = twothreefive
+    let (mut identified, twothreefive, zerosixnine): (HashMap<u8, u8>, Vec<u8>, Vec<u8>) =
+        unidentified.into_iter().fold(
+            (HashMap::new(), Vec::new(), Vec::new()),
+            |(mut identified, mut twothreefive, mut zerosixnine), next| {
+                match next.count_ones() {
+                    2 => {
+                        identified.insert(next, 1);
+                    }
+                    3 => {
+                        identified.insert(next, 7);
+                    }
+                    4 => {
+                        identified.insert(next, 4);
+                    }
+                    7 => {
+                        identified.insert(next, 8);
+                    }
+                    5 => {
+                        twothreefive.push(next);
+                    }
+                    6 => {
+                        zerosixnine.push(next);
+                    }
+                    _ => unreachable!(),
+                };
+                (identified, twothreefive, zerosixnine)
+            },
+        );
+
+    let one: u8 = *identified
         .iter()
-        .flat_map(|s| s.chars())
-        .find(|c| {
-            twothreefive.iter().filter(|s| s.contains(*c)).count() == 1
-                && zerosixnine.iter().filter(|s| s.contains(*c)).count() == 3
-        })
+        .find(|(_, v)| **v == 1)
+        .map(|(k, _)| k)
         .unwrap();
-    let (five, twothree): (Vec<String>, Vec<String>) = twothreefive
-        .into_iter()
-        .partition(|s| s.contains(five_discriminator));
-    let five = five.into_iter().next().unwrap();
 
-    let two_discriminator: char = twothree
-        .iter()
-        .flat_map(|s| s.chars())
-        .find(|c| {
-            twothree
-                .iter()
-                .flat_map(|s| s.chars())
-                .filter(|c2| c2 == c)
-                .count()
-                == 1
-                && zerosixnine
-                    .iter()
-                    .flat_map(|s| s.chars())
-                    .filter(|c2| c2 == c)
-                    .count()
-                    == 2
-        })
-        .unwrap();
-    let (two, three): (String, String) = twothree
-        .into_iter()
-        .partition(|tt| tt.contains(two_discriminator));
+    let topright: u8 = one & zerosixnine.iter().fold(ALL, |acc, zsn| acc ^ zsn);
 
-    let (nine, zerosix): (Vec<String>, Vec<String>) = zerosixnine
+    let (five, twothree): (Vec<u8>, Vec<u8>) = twothreefive
         .into_iter()
-        .partition(|zsn| !zsn.contains(two_discriminator));
-    let nine = nine.into_iter().next().unwrap();
+        .partition(|ttf| ttf & topright == 0);
 
-    let zero_discriminator: char = identified
-        .iter()
-        .filter(|(_, v)| **v == 1)
-        .flat_map(|(k, _)| k.chars())
-        .find(|o| {
-            zerosix
-                .iter()
-                .flat_map(|s| s.chars())
-                .filter(|c| c == o)
-                .count()
-                == 1
-        })
-        .unwrap();
-    let (zero, six): (String, String) = zerosix
+    let btm_right: u8 = one ^ topright;
+    let btm_left: u8 = twothree.iter().fold(0, |acc, tt| acc ^ tt) ^ btm_right;
+
+    let (three, two): (Vec<u8>, Vec<u8>) = twothree
         .into_iter()
-        .partition(|zs| zs.chars().any(|c| c == zero_discriminator));
+        .partition(|tt| tt & btm_right == btm_right);
 
-    identified.insert(zero, 0);
-    identified.insert(two, 2);
-    identified.insert(three, 3);
-    identified.insert(five, 5);
-    identified.insert(six, 6);
-    identified.insert(nine, 9);
+    let (nine, zerosix): (Vec<u8>, Vec<u8>) =
+        zerosixnine.into_iter().partition(|zsn| zsn & btm_left == 0);
+
+    let (zero, six): (Vec<u8>, Vec<u8>) = zerosix
+        .into_iter()
+        .partition(|zs| zs & topright == topright);
+
+    identified.insert(zero[0], 0);
+    identified.insert(two[0], 2);
+    identified.insert(three[0], 3);
+    identified.insert(five[0], 5);
+    identified.insert(six[0], 6);
+    identified.insert(nine[0], 9);
 
     output.iter().fold(0, |num, digit| {
         num * 10 + u64::from(*identified.get(digit).unwrap())
@@ -104,7 +72,7 @@ fn analyze_entry(unidentified: Vec<String>, output: &[String]) -> u64 {
 }
 
 pub fn solve(lines: &[String]) -> Solution {
-    let entries: Vec<(Vec<String>, Vec<String>)> = lines
+    let entries: Vec<(Vec<u8>, Vec<u8>)> = lines
         .iter()
         .filter(|l| !l.is_empty())
         .map(|l| {
@@ -112,9 +80,18 @@ pub fn solve(lines: &[String]) -> Solution {
                 s.trim()
                     .split_whitespace()
                     .map(|s| {
-                        let mut v: Vec<char> = s.chars().collect();
-                        v.sort_unstable();
-                        v.into_iter().collect()
+                        s.chars()
+                            .map(|c| match c {
+                                'a' => 0x01,
+                                'b' => 0x02,
+                                'c' => 0x04,
+                                'd' => 0x08,
+                                'e' => 0x10,
+                                'f' => 0x20,
+                                'g' => 0x40,
+                                _ => unreachable!(),
+                            })
+                            .sum()
                     })
                     .collect()
             });
@@ -126,7 +103,10 @@ pub fn solve(lines: &[String]) -> Solution {
     let sol_a = entries
         .iter()
         .flat_map(|(_, o)| o)
-        .filter(|o| o.len() == 2 || o.len() == 4 || o.len() == 3 || o.len() == 7)
+        .filter(|o| match o.count_ones() {
+            2 | 4 | 3 | 7 => true,
+            _ => false,
+        })
         .count();
     let sol_b: u64 = entries.into_iter().map(|(i, o)| analyze_entry(i, &o)).sum();
 
