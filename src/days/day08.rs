@@ -111,29 +111,18 @@ pub fn solve(lines: &[String]) -> Solution {
         .iter()
         .filter(|l| !l.is_empty())
         .map(|l| {
-            let mut halves = l.split('|').map(|s| s.trim());
-            (
-                halves
-                    .next()
-                    .unwrap()
+            let mut halves = l.split('|').map(|s| {
+                s.trim()
                     .split_whitespace()
                     .map(|s| {
-                        let mut v = s.chars().collect::<Vec<char>>();
+                        let mut v: Vec<char> = s.chars().collect();
                         v.sort();
                         v.into_iter().collect()
                     })
-                    .collect(),
-                halves
-                    .next()
-                    .unwrap()
-                    .split_whitespace()
-                    .map(|s| {
-                        let mut v = s.chars().collect::<Vec<char>>();
-                        v.sort();
-                        v.into_iter().collect()
-                    })
-                    .collect(),
-            )
+                    .collect()
+            });
+
+            (halves.next().unwrap(), halves.next().unwrap())
         })
         .collect();
 
