@@ -74,22 +74,17 @@ fn analyze_entry(unidentified: Vec<String>, output: &[String]) -> u64 {
         .partition(|zsn| !zsn.contains(two_discriminator));
     let nine = nine.into_iter().next().unwrap();
 
-    let zero_discriminator: char = nine
-        .chars()
-        .find(|n| {
+    let zero_discriminator: char = identified
+        .iter()
+        .filter(|(_, v)| **v == 1)
+        .flat_map(|(k, _)| k.chars())
+        .find(|o| {
             zerosix
                 .iter()
                 .flat_map(|s| s.chars())
-                .filter(|c| c == n)
+                .filter(|c| c == o)
                 .count()
                 == 1
-                && identified
-                    .iter()
-                    .filter(|(_, v)| **v == 1)
-                    .flat_map(|(k, _)| k.chars())
-                    .filter(|c| c == n)
-                    .count()
-                    == 1
         })
         .unwrap();
     let (zero, six): (String, String) = zerosix
