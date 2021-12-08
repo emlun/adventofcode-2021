@@ -101,7 +101,7 @@ fn analyze_entry(unidentified: Vec<String>, output: &[String]) -> u64 {
     identified.insert(six, 6);
     identified.insert(nine.into_iter().next().unwrap(), 9);
 
-    output.into_iter().fold(0, |num, digit| {
+    output.iter().fold(0, |num, digit| {
         num * 10 + u64::from(*identified.get(digit).unwrap())
     })
 }
@@ -116,7 +116,7 @@ pub fn solve(lines: &[String]) -> Solution {
                     .split_whitespace()
                     .map(|s| {
                         let mut v: Vec<char> = s.chars().collect();
-                        v.sort();
+                        v.sort_unstable();
                         v.into_iter().collect()
                     })
                     .collect()
