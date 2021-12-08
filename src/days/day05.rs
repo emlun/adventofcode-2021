@@ -13,37 +13,41 @@ fn solve_sub<'a, I: Iterator<Item = &'a ((i32, i32), (i32, i32))>>(segments: I) 
     let mut straight_point_counts: HashMap<CompactPoint, usize> = HashMap::new();
     let mut diag_point_counts: HashMap<CompactPoint, usize> = HashMap::new();
 
+    fn add_points<P: Into<CompactPoint>, I: Iterator<Item = P>>(
+        counts: &mut HashMap<CompactPoint, usize>,
+        points: I,
+    ) {
+        for point in points {
+            *counts.entry(point.into()).or_insert(0) += 1;
+        }
+    }
+
     for ((x1, y1), (x2, y2)) in segments {
         if x1 == x2 {
-            for y in std::cmp::min(*y1, *y2)..=std::cmp::max(*y1, *y2) {
-                *straight_point_counts.entry((*x1, y).into()).or_insert(0) += 1;
-            }
+            add_points(
+                &mut straight_point_counts,
+                (std::cmp::min(*y1, *y2)..=std::cmp::max(*y1, *y2)).map(|y| (*x1, y)),
+            );
         } else if y1 == y2 {
-            for x in std::cmp::min(*x1, *x2)..=std::cmp::max(*x1, *x2) {
-                *straight_point_counts.entry((x, *y1).into()).or_insert(0) += 1;
-            }
+            add_points(
+                &mut straight_point_counts,
+                (std::cmp::min(*x1, *x2)..=std::cmp::max(*x1, *x2)).map(|x| (x, *y1)),
+            );
         } else {
             let xs = std::cmp::min(*x1, *x2)..=std::cmp::max(*x1, *x2);
             let ys = std::cmp::min(*y1, *y2)..=std::cmp::max(*y1, *y2);
+
             if x1 <= x2 {
                 if y1 <= y2 {
-                    for (x, y) in xs.zip(ys) {
-                        *diag_point_counts.entry((x, y).into()).or_insert(0) += 1;
-                    }
+                    add_points(&mut diag_point_counts, xs.zip(ys));
                 } else {
-                    for (x, y) in xs.zip(ys.rev()) {
-                        *diag_point_counts.entry((x, y).into()).or_insert(0) += 1;
-                    }
+                    add_points(&mut diag_point_counts, xs.zip(ys.rev()));
                 }
             } else {
                 if y1 <= y2 {
-                    for (x, y) in xs.rev().zip(ys) {
-                        *diag_point_counts.entry((x, y).into()).or_insert(0) += 1;
-                    }
+                    add_points(&mut diag_point_counts, xs.rev().zip(ys));
                 } else {
-                    for (x, y) in xs.rev().zip(ys.rev()) {
-                        *diag_point_counts.entry((x, y).into()).or_insert(0) += 1;
-                    }
+                    add_points(&mut diag_point_counts, xs.rev().zip(ys.rev()));
                 }
             }
         }
