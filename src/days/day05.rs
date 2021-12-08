@@ -10,8 +10,8 @@ impl From<(i32, i32)> for CompactPoint {
 }
 
 fn solve_sub<I: Iterator<Item = ((i32, i32), (i32, i32))>>(segments: I) -> (usize, usize) {
-    let mut straight_point_counts: HashMap<CompactPoint, usize> = HashMap::new();
-    let mut diag_point_counts: HashMap<CompactPoint, usize> = HashMap::new();
+    let mut straight_point_counts: HashMap<CompactPoint, usize> = HashMap::with_capacity(100_000);
+    let mut diag_point_counts: HashMap<CompactPoint, usize> = HashMap::with_capacity(100_000);
 
     fn add_points<P: Into<CompactPoint>, I: Iterator<Item = P>>(
         counts: &mut HashMap<CompactPoint, usize>,
