@@ -37,18 +37,10 @@ fn solve_sub<'a, I: Iterator<Item = &'a ((i32, i32), (i32, i32))>>(segments: I) 
             let xs = std::cmp::min(*x1, *x2)..=std::cmp::max(*x1, *x2);
             let ys = std::cmp::min(*y1, *y2)..=std::cmp::max(*y1, *y2);
 
-            if x1 <= x2 {
-                if y1 <= y2 {
-                    add_points(&mut diag_point_counts, xs.zip(ys));
-                } else {
-                    add_points(&mut diag_point_counts, xs.zip(ys.rev()));
-                }
+            if (x1 <= x2) == (y1 <= y2) {
+                add_points(&mut diag_point_counts, xs.zip(ys));
             } else {
-                if y1 <= y2 {
-                    add_points(&mut diag_point_counts, xs.rev().zip(ys));
-                } else {
-                    add_points(&mut diag_point_counts, xs.rev().zip(ys.rev()));
-                }
+                add_points(&mut diag_point_counts, xs.zip(ys.rev()));
             }
         }
     }
