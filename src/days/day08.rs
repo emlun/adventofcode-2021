@@ -68,13 +68,11 @@ fn analyze_entry(unidentified: HashSet<String>, output: &[String]) -> u64 {
                     == 2
         })
         .unwrap();
-    let two: String = twothreefive
-        .iter()
-        .find(|ttf| ttf.contains(two_discriminator))
-        .unwrap()
-        .clone();
-    identified.insert(twothreefive.take(&two).unwrap(), 2);
-    identified.insert(twothreefive.into_iter().next().unwrap(), 3);
+    let (two, three): (String, String) = twothreefive
+        .into_iter()
+        .partition(|tt| tt.contains(two_discriminator));
+    identified.insert(two, 2);
+    identified.insert(three, 3);
 
     let nine: String = zerosixnine
         .iter()
@@ -101,13 +99,11 @@ fn analyze_entry(unidentified: HashSet<String>, output: &[String]) -> u64 {
                     == 1
         })
         .unwrap();
-    let zero: String = zerosixnine
-        .iter()
-        .find(|zs| zs.chars().any(|c| c == zero_discriminator))
-        .unwrap()
-        .clone();
-    identified.insert(zerosixnine.take(&zero).unwrap(), 0);
-    identified.insert(zerosixnine.into_iter().next().unwrap(), 6);
+    let (zero, six): (String, String) = zerosixnine
+        .into_iter()
+        .partition(|zs| zs.chars().any(|c| c == zero_discriminator));
+    identified.insert(zero, 0);
+    identified.insert(six, 6);
 
     output.into_iter().fold(0, |num, digit| {
         num * 10 + u64::from(*identified.get(digit).unwrap())
