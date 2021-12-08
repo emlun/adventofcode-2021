@@ -68,9 +68,8 @@ pub fn solve(lines: &[String]) -> Solution {
         .iter()
         .filter(|l| !l.is_empty())
         .map(|l| {
-            let mut halves = l.split('|').map(|s| {
-                s.trim()
-                    .split_whitespace()
+            let mut halves = l.split(" | ").map(|s| {
+                s.split_whitespace()
                     .map(|s| {
                         s.chars()
                             .map(|c| match c {
