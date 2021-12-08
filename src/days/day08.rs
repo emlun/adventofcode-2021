@@ -45,6 +45,7 @@ fn analyze_entry(unidentified: Vec<String>, output: &[String]) -> u64 {
     let (five, twothree): (Vec<String>, Vec<String>) = twothreefive
         .into_iter()
         .partition(|s| s.contains(five_discriminator));
+    let five = five.into_iter().next().unwrap();
 
     let two_discriminator: char = twothree
         .iter()
@@ -71,8 +72,9 @@ fn analyze_entry(unidentified: Vec<String>, output: &[String]) -> u64 {
     let (nine, zerosix): (Vec<String>, Vec<String>) = zerosixnine
         .into_iter()
         .partition(|zsn| !zsn.contains(two_discriminator));
+    let nine = nine.into_iter().next().unwrap();
 
-    let zero_discriminator: char = nine[0]
+    let zero_discriminator: char = nine
         .chars()
         .find(|n| {
             zerosix
@@ -97,9 +99,9 @@ fn analyze_entry(unidentified: Vec<String>, output: &[String]) -> u64 {
     identified.insert(zero, 0);
     identified.insert(two, 2);
     identified.insert(three, 3);
-    identified.insert(five.into_iter().next().unwrap(), 5);
+    identified.insert(five, 5);
     identified.insert(six, 6);
-    identified.insert(nine.into_iter().next().unwrap(), 9);
+    identified.insert(nine, 9);
 
     output.iter().fold(0, |num, digit| {
         num * 10 + u64::from(*identified.get(digit).unwrap())
