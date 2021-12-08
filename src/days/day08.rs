@@ -85,7 +85,7 @@ fn analyze_entry(unidentified: Vec<String>, output: &[String]) -> u64 {
                 == 1
                 && identified
                     .iter()
-                    .filter(|(_, v)| **v == 7)
+                    .filter(|(_, v)| **v == 1)
                     .flat_map(|(k, _)| k.chars())
                     .filter(|c| c == n)
                     .count()
