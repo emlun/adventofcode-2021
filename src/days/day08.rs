@@ -95,10 +95,7 @@ pub fn solve(lines: &[String]) -> Solution {
     let sol_a = entries
         .iter()
         .flat_map(|(_, o)| o)
-        .filter(|o| match o.count_ones() {
-            2 | 4 | 3 | 7 => true,
-            _ => false,
-        })
+        .filter(|o| matches!(o.count_ones(), 2 | 4 | 3 | 7))
         .count();
     let sol_b: u64 = entries.into_iter().map(|(i, o)| analyze_entry(i, &o)).sum();
 
