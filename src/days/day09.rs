@@ -23,10 +23,10 @@ pub fn solve(lines: &[String]) -> Solution {
         })
         .collect();
 
+    let mut floodmap = map.clone();
     let mut basins: Vec<usize> = low_points
         .iter()
         .map(|(x, y)| {
-            let mut floodmap = map.clone();
             let mut queue: VecDeque<(usize, usize)> = VecDeque::new();
             let mut size = 0;
             queue.push_back((*x, *y));
