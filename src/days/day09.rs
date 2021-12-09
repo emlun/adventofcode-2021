@@ -1,5 +1,5 @@
 use crate::common::Solution;
-use std::collections::HashMap;
+use std::collections::VecDeque;
 
 pub fn solve(lines: &[String]) -> Solution {
     let mut map: Vec<Vec<i8>> = lines
@@ -7,27 +7,53 @@ pub fn solve(lines: &[String]) -> Solution {
         .filter(|l| !l.is_empty())
         .map(|l| l.chars().map(|c| c.to_string().parse().unwrap()).collect())
         .collect();
-    map.insert(0, vec![10; map[0].len()]);
-    map.push(vec![10; map[0].len()]);
+    map.insert(0, vec![9; map[0].len()]);
+    map.push(vec![9; map[0].len()]);
     for row in &mut map {
-        row.insert(0, 10);
-        row.push(10);
+        row.insert(0, 9);
+        row.push(9);
     }
 
-    let sol_a: i32 = (1..map[0].len() - 1)
+    let low_points: Vec<(usize, usize)> = (1..map[0].len() - 1)
         .flat_map(|x| (1..map.len() - 1).map(move |y| (x, y)))
-        .map(|(x, y)| {
-            if [(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)]
+        .filter(|(x, y)| {
+            [(x - 1, *y), (x + 1, *y), (*x, y - 1), (*x, y + 1)]
                 .iter()
-                .all(|(nx, ny)| map[*ny][*nx] > map[y][x])
-            {
-                1 + map[y][x] as i32
-            } else {
-                0
-            }
+                .all(|(nx, ny)| map[*ny][*nx] > map[*y][*x])
         })
-        .sum();
-    let sol_b = 0;
+        .collect();
+
+    let mut basins: Vec<usize> = low_points
+        .iter()
+        .map(|(x, y)| {
+            let mut floodmap = map.clone();
+            let mut queue: VecDeque<(usize, usize)> = VecDeque::new();
+            let mut size = 0;
+            queue.push_back((*x, *y));
+            while let Some((x, y)) = queue.pop_front() {
+                if floodmap[y][x] >= 0 {
+                    size += 1;
+                    floodmap[y][x] = -1;
+                    queue.extend(
+                        [(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)]
+                            .iter()
+                            .filter(|(nx, ny)| {
+                                *nx > 0
+                                    && *nx < floodmap[0].len() - 1
+                                    && *ny > 0
+                                    && *ny < floodmap.len() - 1
+                            })
+                            .filter(|(nx, ny)| floodmap[*ny][*nx] < 9),
+                    );
+                }
+            }
+            size
+        })
+        .collect();
+    basins.sort();
+
+    let sol_a: i32 = low_points.iter().map(|(x, y)| 1 + map[*y][*x] as i32).sum();
+    let sol_b: usize = basins[(basins.len() - 3)..basins.len()].iter().product();
 
     (sol_a.to_string(), sol_b.to_string())
 }
