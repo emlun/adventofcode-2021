@@ -5,7 +5,7 @@ pub fn solve(lines: &[String]) -> Solution {
     let mut map: Vec<Vec<i8>> = lines
         .iter()
         .filter(|l| !l.is_empty())
-        .map(|l| l.chars().map(|c| c.to_string().parse().unwrap()).collect())
+        .map(|l| l.chars().map(|c| c.to_digit(10).unwrap() as i8).collect())
         .collect();
     map.insert(0, vec![9; map[0].len()]);
     map.push(vec![9; map[0].len()]);
