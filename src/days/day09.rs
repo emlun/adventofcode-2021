@@ -31,14 +31,10 @@ pub fn solve(lines: &[String]) -> Solution {
             let mut size = 0;
             queue.push_back((*x, *y));
             while let Some((x, y)) = queue.pop_front() {
-                if floodmap[y][x] >= 0 {
+                if floodmap[y][x] >= 0 && floodmap[y][x] < 9 {
                     size += 1;
                     floodmap[y][x] = -1;
-                    queue.extend(
-                        [(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)]
-                            .iter()
-                            .filter(|(nx, ny)| floodmap[*ny][*nx] < 9),
-                    );
+                    queue.extend([(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)]);
                 }
             }
             size
