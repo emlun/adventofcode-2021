@@ -37,12 +37,6 @@ pub fn solve(lines: &[String]) -> Solution {
                     queue.extend(
                         [(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)]
                             .iter()
-                            .filter(|(nx, ny)| {
-                                *nx > 0
-                                    && *nx < floodmap[0].len() - 1
-                                    && *ny > 0
-                                    && *ny < floodmap.len() - 1
-                            })
                             .filter(|(nx, ny)| floodmap[*ny][*nx] < 9),
                     );
                 }
