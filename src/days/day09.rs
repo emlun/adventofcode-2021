@@ -23,7 +23,8 @@ pub fn solve(lines: &[String]) -> Solution {
         })
         .collect();
 
-    let mut floodmap = map.clone();
+    let sol_a: i32 = low_points.iter().map(|(x, y)| 1 + map[*y][*x] as i32).sum();
+
     let mut basins: Vec<usize> = low_points
         .iter()
         .map(|(x, y)| {
@@ -31,9 +32,9 @@ pub fn solve(lines: &[String]) -> Solution {
             let mut size = 0;
             queue.push_back((*x, *y));
             while let Some((x, y)) = queue.pop_front() {
-                if floodmap[y][x] >= 0 && floodmap[y][x] < 9 {
+                if map[y][x] >= 0 && map[y][x] < 9 {
                     size += 1;
-                    floodmap[y][x] = -1;
+                    map[y][x] = -1;
                     queue.push_back((x - 1, y));
                     queue.push_back((x + 1, y));
                     queue.push_back((x, y - 1));
@@ -45,7 +46,6 @@ pub fn solve(lines: &[String]) -> Solution {
         .collect();
     basins.sort();
 
-    let sol_a: i32 = low_points.iter().map(|(x, y)| 1 + map[*y][*x] as i32).sum();
     let sol_b: usize = basins[(basins.len() - 3)..basins.len()].iter().product();
 
     (sol_a.to_string(), sol_b.to_string())
