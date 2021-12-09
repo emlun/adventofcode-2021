@@ -34,7 +34,10 @@ pub fn solve(lines: &[String]) -> Solution {
                 if floodmap[y][x] >= 0 && floodmap[y][x] < 9 {
                     size += 1;
                     floodmap[y][x] = -1;
-                    queue.extend([(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)]);
+                    queue.push_back((x - 1, y));
+                    queue.push_back((x + 1, y));
+                    queue.push_back((x, y - 1));
+                    queue.push_back((x, y + 1));
                 }
             }
             size
