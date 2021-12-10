@@ -2,102 +2,75 @@ use crate::common::Solution;
 
 #[derive(Debug)]
 enum Chunk {
-    Valid(char, Vec<Chunk>),
-    Incomplete(char, Vec<Chunk>),
+    Incomplete(Vec<char>),
     Corrupt(char),
 }
-use Chunk::Corrupt;
-use Chunk::Incomplete;
-use Chunk::Valid;
 
-fn parse_chunk<I: Iterator<Item = char>>(input: &mut std::iter::Peekable<I>) -> Option<Chunk> {
-    match input.next() {
-        Some(open @ ('(' | '[' | '{' | '<')) => Some({
-            let mut subchunks = Vec::new();
-            loop {
-                match input.peek() {
-                    Some(')' | ']' | '}' | '>') => {
-                        let close = input.next().unwrap();
-                        match (open, close) {
-                            ('(', ')') | ('[', ']') | ('{', '}') | ('<', '>') => {
-                                break Valid(open, subchunks)
-                            }
-                            _ => break Corrupt(close),
-                        };
-                    }
-                    _ => match parse_chunk(input) {
-                        Some(subchunk @ Valid(..)) => {
-                            subchunks.push(subchunk);
-                        }
-                        Some(i @ Incomplete(..)) => {
-                            subchunks.push(i);
-                        }
-                        Some(c @ Corrupt(..)) => break c,
-                        None => break Incomplete(open, subchunks),
-                    },
+fn parse_chunk<I: Iterator<Item = char>>(input: &mut I) -> Chunk {
+    let mut opens = Vec::new();
+    while let Some(next) = input.next() {
+        match next {
+            '(' | '[' | '{' | '<' => opens.push(next),
+            ')' | ']' | '}' | '>' => match (opens.pop(), next) {
+                (Some('('), ')') | (Some('['), ']') | (Some('{'), '}') | (Some('<'), '>') => {}
+                (_, close) => {
+                    return Chunk::Corrupt(close);
                 }
-            }
-        }),
-        Some(other) => Some(Corrupt(other)),
-        None => None,
-    }
-}
-
-fn complete_chunk(chunk: &Chunk) -> Vec<char> {
-    fn recurse(chunk: &Chunk, output: &mut Vec<char>) {
-        match chunk {
-            Incomplete(open, subchunks) => {
-                for sub in subchunks {
-                    recurse(sub, output);
-                }
-                output.push(match open {
-                    '(' => ')',
-                    '[' => ']',
-                    '{' => '}',
-                    '<' => '>',
-                    _ => unreachable!(),
-                });
-            }
-            _ => {}
+            },
+            _ => unreachable!(),
         }
     }
-    let mut output = Vec::new();
-    recurse(chunk, &mut output);
-    output
+    Chunk::Incomplete(opens)
+}
+
+fn complete_chunk(chunk: &Vec<char>) -> Vec<char> {
+    chunk
+        .iter()
+        .rev()
+        .map(|open| match open {
+            '(' => ')',
+            '[' => ']',
+            '{' => '}',
+            '<' => '>',
+            _ => unreachable!(),
+        })
+        .collect()
 }
 
 pub fn solve(lines: &[String]) -> Solution {
     let chunks: Vec<Chunk> = lines
         .iter()
         .filter(|l| !l.is_empty())
-        .flat_map(|l| parse_chunk(&mut l.chars().peekable()))
+        .map(|l| parse_chunk(&mut l.chars()))
         .collect();
 
     let sol_a: usize = chunks
         .iter()
         .flat_map(|c| match c {
-            Corrupt(')') => Some(3),
-            Corrupt(']') => Some(57),
-            Corrupt('}') => Some(1197),
-            Corrupt('>') => Some(25137),
+            Chunk::Corrupt(')') => Some(3),
+            Chunk::Corrupt(']') => Some(57),
+            Chunk::Corrupt('}') => Some(1197),
+            Chunk::Corrupt('>') => Some(25137),
             _ => None,
         })
         .sum();
 
     let mut completion_scores: Vec<usize> = chunks
         .iter()
-        .filter(|c| matches!(c, Incomplete(..)))
-        .map(|c| {
-            complete_chunk(c).into_iter().fold(0, |score, chr| {
-                score * 5
-                    + match chr {
-                        ')' => 1,
-                        ']' => 2,
-                        '}' => 3,
-                        '>' => 4,
-                        _ => unreachable!(),
-                    }
-            })
+        .flat_map(|c| match c {
+            Chunk::Incomplete(opens) => {
+                Some(complete_chunk(opens).into_iter().fold(0, |score, chr| {
+                    score * 5
+                        + match chr {
+                            ')' => 1,
+                            ']' => 2,
+                            '}' => 3,
+                            '>' => 4,
+                            _ => unreachable!(),
+                        }
+                }))
+            }
+            _ => None,
         })
         .collect();
     completion_scores.sort();
