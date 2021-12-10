@@ -10,10 +10,9 @@ use Chunk::Corrupt;
 use Chunk::Incomplete;
 use Chunk::Valid;
 
-fn parse_chunk<I: Iterator<Item = char>>(input: &mut std::iter::Peekable<I>) -> Chunk {
-    let open = input.next().unwrap();
-    match open {
-        '(' | '[' | '{' | '<' => {
+fn parse_chunk<I: Iterator<Item = char>>(input: &mut std::iter::Peekable<I>) -> Option<Chunk> {
+    match input.next() {
+        Some(open @ ('(' | '[' | '{' | '<')) => Some({
             let mut subchunks = Vec::new();
             loop {
                 match input.peek() {
@@ -26,20 +25,21 @@ fn parse_chunk<I: Iterator<Item = char>>(input: &mut std::iter::Peekable<I>) -> 
                             _ => break Corrupt(close),
                         };
                     }
-                    Some(_) => match parse_chunk(input) {
-                        subchunk @ Valid(..) => {
+                    _ => match parse_chunk(input) {
+                        Some(subchunk @ Valid(..)) => {
                             subchunks.push(subchunk);
                         }
-                        i @ Incomplete(..) => {
+                        Some(i @ Incomplete(..)) => {
                             subchunks.push(i);
                         }
-                        c @ Corrupt(..) => break c,
+                        Some(c @ Corrupt(..)) => break c,
+                        None => break Incomplete(open, subchunks),
                     },
-                    None => break Incomplete(open, subchunks),
                 }
             }
-        }
-        other => Corrupt(other),
+        }),
+        Some(other) => Some(Corrupt(other)),
+        None => None,
     }
 }
 
@@ -70,7 +70,7 @@ pub fn solve(lines: &[String]) -> Solution {
     let chunks: Vec<Chunk> = lines
         .iter()
         .filter(|l| !l.is_empty())
-        .map(|l| parse_chunk(&mut l.chars().peekable()))
+        .flat_map(|l| parse_chunk(&mut l.chars().peekable()))
         .collect();
 
     let sol_a: usize = chunks
