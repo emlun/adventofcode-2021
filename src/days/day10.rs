@@ -23,20 +23,6 @@ fn parse_chunk<I: Iterator<Item = char>>(input: &mut I) -> Chunk {
     Chunk::Incomplete(opens)
 }
 
-fn complete_chunk(chunk: &Vec<char>) -> Vec<char> {
-    chunk
-        .iter()
-        .rev()
-        .map(|open| match open {
-            '(' => ')',
-            '[' => ']',
-            '{' => '}',
-            '<' => '>',
-            _ => unreachable!(),
-        })
-        .collect()
-}
-
 pub fn solve(lines: &[String]) -> Solution {
     let chunks: Vec<Chunk> = lines
         .iter()
@@ -56,20 +42,18 @@ pub fn solve(lines: &[String]) -> Solution {
         .sum();
 
     let mut completion_scores: Vec<usize> = chunks
-        .iter()
+        .into_iter()
         .flat_map(|c| match c {
-            Chunk::Incomplete(opens) => {
-                Some(complete_chunk(opens).into_iter().fold(0, |score, chr| {
-                    score * 5
-                        + match chr {
-                            ')' => 1,
-                            ']' => 2,
-                            '}' => 3,
-                            '>' => 4,
-                            _ => unreachable!(),
-                        }
-                }))
-            }
+            Chunk::Incomplete(opens) => Some(opens.into_iter().rev().fold(0, |score, chr| {
+                score * 5
+                    + match chr {
+                        '(' => 1,
+                        '[' => 2,
+                        '{' => 3,
+                        '<' => 4,
+                        _ => unreachable!(),
+                    }
+            })),
             _ => None,
         })
         .collect();
