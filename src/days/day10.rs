@@ -6,9 +6,9 @@ enum Chunk {
     Corrupt(char),
 }
 
-fn parse_chunk<I: Iterator<Item = char>>(input: &mut I) -> Chunk {
+fn parse_chunk(input: &str) -> Chunk {
     let mut opens = Vec::new();
-    for next in input {
+    for next in input.chars() {
         match next {
             '(' | '[' | '{' | '<' => opens.push(next),
             ')' | ']' | '}' | '>' => match (opens.pop(), next) {
@@ -27,7 +27,7 @@ pub fn solve(lines: &[String]) -> Solution {
     let chunks: Vec<Chunk> = lines
         .iter()
         .filter(|l| !l.is_empty())
-        .map(|l| parse_chunk(&mut l.chars()))
+        .map(|l| parse_chunk(l))
         .collect();
 
     let sol_a: usize = chunks
