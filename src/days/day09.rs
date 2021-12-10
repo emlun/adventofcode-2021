@@ -44,7 +44,7 @@ pub fn solve(lines: &[String]) -> Solution {
             size
         })
         .collect();
-    basins.sort();
+    basins.sort_unstable();
 
     let sol_b: usize = basins[(basins.len() - 3)..basins.len()].iter().product();
 

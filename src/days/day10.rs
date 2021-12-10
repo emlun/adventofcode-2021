@@ -8,7 +8,7 @@ enum Chunk {
 
 fn parse_chunk<I: Iterator<Item = char>>(input: &mut I) -> Chunk {
     let mut opens = Vec::new();
-    while let Some(next) = input.next() {
+    for next in input {
         match next {
             '(' | '[' | '{' | '<' => opens.push(next),
             ')' | ']' | '}' | '>' => match (opens.pop(), next) {
@@ -57,7 +57,7 @@ pub fn solve(lines: &[String]) -> Solution {
             _ => None,
         })
         .collect();
-    completion_scores.sort();
+    completion_scores.sort_unstable();
     let sol_b = completion_scores[completion_scores.len() / 2];
 
     (sol_a.to_string(), sol_b.to_string())
