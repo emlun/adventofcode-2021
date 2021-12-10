@@ -5,6 +5,8 @@ enum Chunk {
     Incomplete(Vec<char>),
     Corrupt(char),
 }
+use Chunk::Corrupt;
+use Chunk::Incomplete;
 
 fn parse_chunk(input: &str) -> Chunk {
     let mut opens = Vec::new();
@@ -14,13 +16,13 @@ fn parse_chunk(input: &str) -> Chunk {
             ')' | ']' | '}' | '>' => match (opens.pop(), next) {
                 (Some('('), ')') | (Some('['), ']') | (Some('{'), '}') | (Some('<'), '>') => {}
                 (_, close) => {
-                    return Chunk::Corrupt(close);
+                    return Corrupt(close);
                 }
             },
             _ => unreachable!(),
         }
     }
-    Chunk::Incomplete(opens)
+    Incomplete(opens)
 }
 
 pub fn solve(lines: &[String]) -> Solution {
@@ -33,10 +35,10 @@ pub fn solve(lines: &[String]) -> Solution {
     let sol_a: usize = chunks
         .iter()
         .flat_map(|c| match c {
-            Chunk::Corrupt(')') => Some(3),
-            Chunk::Corrupt(']') => Some(57),
-            Chunk::Corrupt('}') => Some(1197),
-            Chunk::Corrupt('>') => Some(25137),
+            Corrupt(')') => Some(3),
+            Corrupt(']') => Some(57),
+            Corrupt('}') => Some(1197),
+            Corrupt('>') => Some(25137),
             _ => None,
         })
         .sum();
@@ -44,7 +46,7 @@ pub fn solve(lines: &[String]) -> Solution {
     let mut completion_scores: Vec<usize> = chunks
         .into_iter()
         .flat_map(|c| match c {
-            Chunk::Incomplete(opens) => Some(opens.into_iter().rev().fold(0, |score, chr| {
+            Incomplete(opens) => Some(opens.into_iter().rev().fold(0, |score, chr| {
                 score * 5
                     + match chr {
                         '(' => 1,
