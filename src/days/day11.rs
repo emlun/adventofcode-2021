@@ -2,35 +2,25 @@ use crate::common::Solution;
 
 const SIZE: usize = 10;
 
-fn simulate(mut map: Vec<Vec<i8>>, times: usize) -> (Vec<Vec<i8>>, usize, Option<usize>) {
-    if times == 0 {
-        (map, 0, None)
-    } else {
-        for r in 0..SIZE {
-            for c in 0..SIZE {
-                if map[r][c] < 10 {
-                    map[r][c] += 1;
-                }
-                flash(&mut map, r, c);
+fn simulate(mut map: Vec<Vec<i8>>) -> (Vec<Vec<i8>>, usize) {
+    for r in 0..SIZE {
+        for c in 0..SIZE {
+            if map[r][c] < 10 {
+                map[r][c] += 1;
             }
+            flash(&mut map, r, c);
         }
-        let mut flashes = 0;
-        for r in 0..SIZE {
-            for c in 0..SIZE {
-                if map[r][c] > 9 {
-                    map[r][c] = 0;
-                    flashes += 1;
-                }
-            }
-        }
-        let allflash = if flashes == SIZE * SIZE {
-            Some(times)
-        } else {
-            None
-        };
-        let (newmap, fl, allflash_later) = simulate(map, times - 1);
-        (newmap, flashes + fl, allflash.or(allflash_later))
     }
+    let mut flashes = 0;
+    for r in 0..SIZE {
+        for c in 0..SIZE {
+            if map[r][c] > 9 {
+                map[r][c] = 0;
+                flashes += 1;
+            }
+        }
+    }
+    (map, flashes)
 }
 
 fn flash(map: &mut Vec<Vec<i8>>, r: usize, c: usize) {
@@ -50,24 +40,33 @@ fn flash(map: &mut Vec<Vec<i8>>, r: usize, c: usize) {
 }
 
 pub fn solve(lines: &[String]) -> Solution {
-    let map: Vec<Vec<i8>> = lines
+    let mut map: Vec<Vec<i8>> = lines
         .iter()
         .filter(|l| !l.is_empty())
         .map(|l| l.chars().map(|c| c.to_digit(10).unwrap() as i8).collect())
         .collect();
 
-    let (mut map, sol_a, mut sol_b) = simulate(map, 100);
-    let mut time = 101;
-    let sol_b = loop {
-        if sol_b.is_some() {
-            break time - sol_b.unwrap();
-        } else {
-            let (mp, _, sb) = simulate(map, 100);
-            map = mp;
-            sol_b = sb;
-            time += 100;
+    let mut sol_a = 0;
+    let mut sol_b = None;
+    for t in 1..=100 {
+        let (m, f) = simulate(map);
+        map = m;
+        if f == SIZE * SIZE {
+            sol_b = sol_b.or(Some(t));
         }
-    };
+        sol_a += f;
+    }
+    for t in 101.. {
+        if sol_b.is_some() {
+            break;
+        }
+        let (m, f) = simulate(map);
+        map = m;
+        if f == SIZE * SIZE {
+            sol_b = sol_b.or(Some(t));
+        }
+    }
+    let sol_b = sol_b.unwrap();
 
     (sol_a.to_string(), sol_b.to_string())
 }
