@@ -11,10 +11,6 @@ fn simulate(mut map: Vec<Vec<i8>>, times: usize) -> (Vec<Vec<i8>>, usize, Option
                 if map[r][c] < 10 {
                     map[r][c] += 1;
                 }
-            }
-        }
-        for r in 0..SIZE {
-            for c in 0..SIZE {
                 flash(&mut map, r, c);
             }
         }
