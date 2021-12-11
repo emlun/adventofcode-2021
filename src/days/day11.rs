@@ -1,31 +1,33 @@
 use crate::common::Solution;
 
+const SIZE: usize = 10;
+
 fn simulate(mut map: Vec<Vec<i8>>, times: usize) -> (Vec<Vec<i8>>, usize, Option<usize>) {
     if times == 0 {
         (map, 0, None)
     } else {
-        for r in 0..map.len() {
-            for c in 0..map.len() {
+        for r in 0..SIZE {
+            for c in 0..SIZE {
                 if map[r][c] < 10 {
                     map[r][c] += 1;
                 }
             }
         }
-        for r in 0..map.len() {
-            for c in 0..map.len() {
+        for r in 0..SIZE {
+            for c in 0..SIZE {
                 flash(&mut map, r, c);
             }
         }
         let mut flashes = 0;
-        for r in 0..map.len() {
-            for c in 0..map.len() {
+        for r in 0..SIZE {
+            for c in 0..SIZE {
                 if map[r][c] > 9 {
                     map[r][c] = 0;
                     flashes += 1;
                 }
             }
         }
-        let allflash = if flashes == map.len() * map.len() {
+        let allflash = if flashes == SIZE * SIZE {
             Some(times)
         } else {
             None
@@ -38,9 +40,9 @@ fn simulate(mut map: Vec<Vec<i8>>, times: usize) -> (Vec<Vec<i8>>, usize, Option
 fn flash(map: &mut Vec<Vec<i8>>, r: usize, c: usize) {
     if map[r][c] == 10 {
         map[r][c] += 1;
-        for rr in r.saturating_sub(1)..=(r + 1) {
-            for cc in c.saturating_sub(1)..=(c + 1) {
-                if rr < map.len() && cc < map[rr].len() && (rr != r || cc != c) {
+        for rr in r.saturating_sub(1)..=std::cmp::min(r + 1, SIZE - 1) {
+            for cc in c.saturating_sub(1)..=std::cmp::min(c + 1, SIZE - 1) {
+                if rr != r || cc != c {
                     if map[rr][cc] < 10 {
                         map[rr][cc] += 1;
                     }
