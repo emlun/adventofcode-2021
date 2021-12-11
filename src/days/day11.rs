@@ -1,8 +1,8 @@
 use crate::common::Solution;
 
-fn simulate(mut map: Vec<Vec<i8>>, times: usize) -> (Vec<Vec<i8>>, usize) {
+fn simulate(mut map: Vec<Vec<i8>>, times: usize) -> (Vec<Vec<i8>>, usize, Option<usize>) {
     if times == 0 {
-        (map, 0)
+        (map, 0, None)
     } else {
         for r in 0..map.len() {
             for c in 0..map.len() {
@@ -25,8 +25,13 @@ fn simulate(mut map: Vec<Vec<i8>>, times: usize) -> (Vec<Vec<i8>>, usize) {
                 }
             }
         }
-        let (newmap, fl) = simulate(map, times - 1);
-        (newmap, flashes + fl)
+        let allflash = if flashes == map.len() * map.len() {
+            Some(times)
+        } else {
+            None
+        };
+        let (newmap, fl, allflash_later) = simulate(map, times - 1);
+        (newmap, flashes + fl, allflash.or(allflash_later))
     }
 }
 
@@ -53,9 +58,18 @@ pub fn solve(lines: &[String]) -> Solution {
         .map(|l| l.chars().map(|c| c.to_digit(10).unwrap() as i8).collect())
         .collect();
 
-    let (_, sol_a) = simulate(map, 100);
-
-    let sol_b: usize = 0;
+    let (mut map, sol_a, mut sol_b) = simulate(map, 100);
+    let mut time = 101;
+    let sol_b = loop {
+        if sol_b.is_some() {
+            break time - sol_b.unwrap();
+        } else {
+            let (mp, _, sb) = simulate(map, 100);
+            map = mp;
+            sol_b = sb;
+            time += 100;
+        }
+    };
 
     (sol_a.to_string(), sol_b.to_string())
 }
