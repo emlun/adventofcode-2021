@@ -9,7 +9,7 @@ fn count_paths<'a, 'b>(
 ) -> usize {
     map[current]
         .iter()
-        .map(|next| {
+        .map(|next: &&'a str| {
             if next == &"end" {
                 1
             } else if next != &"start" {
