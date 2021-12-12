@@ -1,6 +1,5 @@
 use crate::common::Solution;
 use std::collections::HashMap;
-use std::collections::HashSet;
 
 #[derive(Clone)]
 struct Path<'a, 'b> {
@@ -10,7 +9,7 @@ struct Path<'a, 'b> {
 }
 
 fn count_paths<'a, 'b>(
-    map: &HashMap<&'a str, HashSet<&'a str>>,
+    map: &HashMap<&'a str, Vec<&'a str>>,
     path: Path<'b, 'a>,
     small2_spent: bool,
 ) -> usize {
@@ -42,7 +41,7 @@ fn count_paths<'a, 'b>(
 }
 
 pub fn solve(lines: &[String]) -> Solution {
-    let map: HashMap<&str, HashSet<&str>> =
+    let map: HashMap<&str, Vec<&str>> =
         lines
             .iter()
             .filter(|l| !l.is_empty())
@@ -50,8 +49,8 @@ pub fn solve(lines: &[String]) -> Solution {
                 let mut halves = l.split('-');
                 let a: &str = halves.next().unwrap();
                 let b: &str = halves.next().unwrap();
-                map.entry(a).or_insert_with(HashSet::new).insert(b);
-                map.entry(b).or_insert_with(HashSet::new).insert(a);
+                map.entry(a).or_insert_with(Vec::new).push(b);
+                map.entry(b).or_insert_with(Vec::new).push(a);
                 map
             });
 
