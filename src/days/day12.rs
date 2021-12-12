@@ -1,35 +1,30 @@
 use crate::common::Solution;
 use std::collections::HashMap;
 
-#[derive(Clone)]
-struct Path<'a, 'b> {
-    current: &'a &'b str,
-    smalls: Vec<&'a &'b str>,
-}
-
 fn count_paths<'a, 'b>(
     map: &HashMap<&'a str, Vec<&'a str>>,
-    path: Path<'b, 'a>,
+    current: &'b &'a str,
     small2_spent: bool,
+    smalls: Vec<&'b &'a str>,
 ) -> usize {
-    map[path.current]
+    map[current]
         .iter()
         .map(|next| {
             if next == &"end" {
                 1
-            } else if next != &"start" && (!small2_spent || !path.smalls.contains(&&next)) {
+            } else if next != &"start" && (!small2_spent || !smalls.contains(&next)) {
                 let is_small = next.chars().next().unwrap().is_lowercase();
-                let mut smalls = path.smalls.clone();
-                if is_small {
-                    smalls.push(next);
-                }
                 count_paths(
                     map,
-                    Path {
-                        current: next,
-                        smalls,
+                    next,
+                    small2_spent || (is_small && smalls.contains(&next)),
+                    {
+                        let mut smalls = smalls.clone();
+                        if is_small {
+                            smalls.push(next);
+                        }
+                        smalls
                     },
-                    small2_spent || (is_small && path.smalls.contains(&next)),
                 )
             } else {
                 0
@@ -52,12 +47,8 @@ pub fn solve(lines: &[String]) -> Solution {
                 map
             });
 
-    let start = Path {
-        current: &"start",
-        smalls: Vec::new(),
-    };
-    let sol_a = count_paths(&map, start.clone(), true);
-    let sol_b = count_paths(&map, start, false);
+    let sol_a = count_paths(&map, &"start", true, Vec::new());
+    let sol_b = count_paths(&map, &"start", false, Vec::new());
 
     (sol_a.to_string(), sol_b.to_string())
 }
