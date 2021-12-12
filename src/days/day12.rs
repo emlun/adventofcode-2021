@@ -10,49 +10,14 @@ struct Path<'a, 'b> {
     small2_spent: bool,
 }
 
-fn count_paths<'a>(map: &HashMap<&'a str, HashSet<&'a str>>) -> usize {
-    let mut count = 0;
-    let mut queue: VecDeque<Path> = VecDeque::new();
-    queue.push_back(Path {
-        current: &"start",
-        len: 0,
-        smalls: ["start"].iter().collect(),
-        small2_spent: false,
-    });
-    while let Some(path) = queue.pop_front() {
-        if path.current == &"end" {
-            count += 1;
-        } else {
-            queue.extend(
-                map[path.current]
-                    .iter()
-                    .filter(|next| !path.smalls.contains(*next))
-                    .map(|next| Path {
-                        current: next,
-                        len: path.len + 1,
-                        smalls: if next.chars().next().unwrap().is_lowercase() {
-                            let mut s = path.smalls.clone();
-                            s.insert(next);
-                            s
-                        } else {
-                            path.smalls.clone()
-                        },
-                        small2_spent: false,
-                    }),
-            );
-        }
-    }
-    count
-}
-
-fn count_paths_b<'a>(map: &HashMap<&'a str, HashSet<&'a str>>) -> usize {
+fn count_paths<'a>(map: &HashMap<&'a str, HashSet<&'a str>>, small_twice: bool) -> usize {
     let mut count = 0;
     let mut queue: VecDeque<Path> = VecDeque::new();
     queue.push_back(Path {
         current: &"start",
         len: 0,
         smalls: HashSet::new(),
-        small2_spent: false,
+        small2_spent: small_twice,
     });
     while let Some(path) = queue.pop_front() {
         if path.current == &"end" {
@@ -98,8 +63,8 @@ pub fn solve(lines: &[String]) -> Solution {
                 map
             });
 
-    let sol_a = count_paths(&map);
-    let sol_b = count_paths_b(&map);
+    let sol_a = count_paths(&map, true);
+    let sol_b = count_paths(&map, false);
 
     (sol_a.to_string(), sol_b.to_string())
 }
