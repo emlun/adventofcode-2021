@@ -12,20 +12,20 @@ fn count_paths<'a, 'b>(
         .map(|next| {
             if next == &"end" {
                 1
-            } else if next != &"start" && (!small2_spent || !smalls.contains(&next)) {
+            } else if next != &"start" {
                 let is_small = next.chars().next().unwrap().is_lowercase();
-                count_paths(
-                    map,
-                    next,
-                    small2_spent || (is_small && smalls.contains(&next)),
-                    {
+                let small_visited = is_small && smalls.contains(&next);
+                if !small2_spent || !small_visited {
+                    count_paths(map, next, small2_spent || small_visited, {
                         let mut smalls = smalls.clone();
                         if is_small {
                             smalls.push(next);
                         }
                         smalls
-                    },
-                )
+                    })
+                } else {
+                    0
+                }
             } else {
                 0
             }
