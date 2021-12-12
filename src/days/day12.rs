@@ -1,44 +1,44 @@
 use crate::common::Solution;
 use std::collections::HashMap;
 use std::collections::HashSet;
-use std::collections::VecDeque;
 
+#[derive(Clone)]
 struct Path<'a, 'b> {
     current: &'a &'b str,
     len: usize,
     smalls: Vec<&'a &'b str>,
-    small2_spent: bool,
 }
 
-fn count_paths<'a>(map: &HashMap<&'a str, HashSet<&'a str>>, small_twice: bool) -> usize {
-    let mut count = 0;
-    let mut queue: VecDeque<Path> = VecDeque::new();
-    queue.push_back(Path {
-        current: &"start",
-        len: 0,
-        smalls: Vec::new(),
-        small2_spent: small_twice,
-    });
-    while let Some(path) = queue.pop_front() {
-        for next in &map[path.current] {
+fn count_paths<'a, 'b>(
+    map: &HashMap<&'a str, HashSet<&'a str>>,
+    path: Path<'b, 'a>,
+    small2_spent: bool,
+) -> usize {
+    map[path.current]
+        .iter()
+        .map(|next| {
             if next == &"end" {
-                count += 1;
-            } else if next != &"start" && (!path.small2_spent || !path.smalls.contains(&&next)) {
+                1
+            } else if next != &"start" && (!small2_spent || !path.smalls.contains(&&next)) {
                 let is_small = next.chars().next().unwrap().is_lowercase();
                 let mut smalls = path.smalls.clone();
                 if is_small {
                     smalls.push(next);
                 }
-                queue.push_back(Path {
-                    current: next,
-                    len: path.len + 1,
-                    smalls,
-                    small2_spent: path.small2_spent || (is_small && path.smalls.contains(&next)),
-                });
+                count_paths(
+                    map,
+                    Path {
+                        current: next,
+                        len: path.len + 1,
+                        smalls,
+                    },
+                    small2_spent || (is_small && path.smalls.contains(&next)),
+                )
+            } else {
+                0
             }
-        }
-    }
-    count
+        })
+        .sum()
 }
 
 pub fn solve(lines: &[String]) -> Solution {
@@ -55,8 +55,13 @@ pub fn solve(lines: &[String]) -> Solution {
                 map
             });
 
-    let sol_a = count_paths(&map, true);
-    let sol_b = count_paths(&map, false);
+    let start = Path {
+        current: &"start",
+        len: 0,
+        smalls: Vec::new(),
+    };
+    let sol_a = count_paths(&map, start.clone(), true);
+    let sol_b = count_paths(&map, start, false);
 
     (sol_a.to_string(), sol_b.to_string())
 }
