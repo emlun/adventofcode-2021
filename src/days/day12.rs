@@ -29,19 +29,21 @@ fn count_paths<'a>(map: &HashMap<&'a str, HashSet<&'a str>>, small_twice: bool) 
                     .filter(|next| {
                         next != &&"start" && (!path.small2_spent || !path.smalls.contains(*next))
                     })
-                    .map(|next| Path {
-                        current: next,
-                        len: path.len + 1,
-                        smalls: if next.chars().next().unwrap().is_lowercase() {
-                            let mut s = path.smalls.clone();
-                            s.insert(next);
-                            s
-                        } else {
-                            path.smalls.clone()
-                        },
-                        small2_spent: path.small2_spent
-                            || (next.chars().next().unwrap().is_lowercase()
-                                && path.smalls.contains(next)),
+                    .map(|next| {
+                        let is_small = next.chars().next().unwrap().is_lowercase();
+                        Path {
+                            current: next,
+                            len: path.len + 1,
+                            smalls: if is_small {
+                                let mut s = path.smalls.clone();
+                                s.insert(next);
+                                s
+                            } else {
+                                path.smalls.clone()
+                            },
+                            small2_spent: path.small2_spent
+                                || (is_small && path.smalls.contains(next)),
+                        }
                     }),
             );
         }
