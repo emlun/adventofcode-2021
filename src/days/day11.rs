@@ -12,10 +12,10 @@ fn simulate(mut map: Vec<Vec<i8>>) -> (Vec<Vec<i8>>, usize) {
         }
     }
     let mut flashes = 0;
-    for r in 0..SIZE {
-        for c in 0..SIZE {
-            if map[r][c] > 9 {
-                map[r][c] = 0;
+    for row in &mut map {
+        for cell in row {
+            if *cell > 9 {
+                *cell = 0;
                 flashes += 1;
             }
         }
