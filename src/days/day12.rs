@@ -4,7 +4,6 @@ use std::collections::HashMap;
 #[derive(Clone)]
 struct Path<'a, 'b> {
     current: &'a &'b str,
-    len: usize,
     smalls: Vec<&'a &'b str>,
 }
 
@@ -28,7 +27,6 @@ fn count_paths<'a, 'b>(
                     map,
                     Path {
                         current: next,
-                        len: path.len + 1,
                         smalls,
                     },
                     small2_spent || (is_small && path.smalls.contains(&next)),
@@ -56,7 +54,6 @@ pub fn solve(lines: &[String]) -> Solution {
 
     let start = Path {
         current: &"start",
-        len: 0,
         smalls: Vec::new(),
     };
     let sol_a = count_paths(&map, start.clone(), true);
