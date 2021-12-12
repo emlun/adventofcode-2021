@@ -20,32 +20,27 @@ fn count_paths<'a>(map: &HashMap<&'a str, HashSet<&'a str>>, small_twice: bool) 
         small2_spent: small_twice,
     });
     while let Some(path) = queue.pop_front() {
-        if path.current == &"end" {
-            count += 1;
-        } else {
-            queue.extend(
-                map[path.current]
-                    .iter()
-                    .filter(|next| {
-                        next != &&"start" && (!path.small2_spent || !path.smalls.contains(next))
-                    })
-                    .map(|next| {
-                        let is_small = next.chars().next().unwrap().is_lowercase();
-                        Path {
-                            current: next,
-                            len: path.len + 1,
-                            smalls: {
-                                let mut s = path.smalls.clone();
-                                if is_small {
-                                    s.push(next);
-                                }
-                                s
-                            },
-                            small2_spent: path.small2_spent
-                                || (is_small && path.smalls.contains(&next)),
-                        }
-                    }),
-            );
+        for next in &map[path.current] {
+            if next == &"end" {
+                count += 1;
+            } else if next != &"start" && (!path.small2_spent || !path.smalls.contains(&&next)) {
+                queue.push_back({
+                    let is_small = next.chars().next().unwrap().is_lowercase();
+                    Path {
+                        current: next,
+                        len: path.len + 1,
+                        smalls: {
+                            let mut s = path.smalls.clone();
+                            if is_small {
+                                s.push(next);
+                            }
+                            s
+                        },
+                        small2_spent: path.small2_spent
+                            || (is_small && path.smalls.contains(&next)),
+                    }
+                });
+            }
         }
     }
     count
