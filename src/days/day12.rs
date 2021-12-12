@@ -6,7 +6,7 @@ use std::collections::VecDeque;
 struct Path<'a, 'b> {
     current: &'a &'b str,
     len: usize,
-    smalls: HashSet<&'a &'b str>,
+    smalls: Vec<&'a &'b str>,
     small2_spent: bool,
 }
 
@@ -16,7 +16,7 @@ fn count_paths<'a>(map: &HashMap<&'a str, HashSet<&'a str>>, small_twice: bool) 
     queue.push_back(Path {
         current: &"start",
         len: 0,
-        smalls: HashSet::new(),
+        smalls: Vec::new(),
         small2_spent: small_twice,
     });
     while let Some(path) = queue.pop_front() {
@@ -27,7 +27,7 @@ fn count_paths<'a>(map: &HashMap<&'a str, HashSet<&'a str>>, small_twice: bool) 
                 map[path.current]
                     .iter()
                     .filter(|next| {
-                        next != &&"start" && (!path.small2_spent || !path.smalls.contains(*next))
+                        next != &&"start" && (!path.small2_spent || !path.smalls.contains(next))
                     })
                     .map(|next| {
                         let is_small = next.chars().next().unwrap().is_lowercase();
@@ -36,13 +36,13 @@ fn count_paths<'a>(map: &HashMap<&'a str, HashSet<&'a str>>, small_twice: bool) 
                             len: path.len + 1,
                             smalls: if is_small {
                                 let mut s = path.smalls.clone();
-                                s.insert(next);
+                                s.push(next);
                                 s
                             } else {
                                 path.smalls.clone()
                             },
                             small2_spent: path.small2_spent
-                                || (is_small && path.smalls.contains(next)),
+                                || (is_small && path.smalls.contains(&next)),
                         }
                     }),
             );
