@@ -24,21 +24,16 @@ fn count_paths<'a>(map: &HashMap<&'a str, HashSet<&'a str>>, small_twice: bool) 
             if next == &"end" {
                 count += 1;
             } else if next != &"start" && (!path.small2_spent || !path.smalls.contains(&&next)) {
-                queue.push_back({
-                    let is_small = next.chars().next().unwrap().is_lowercase();
-                    Path {
-                        current: next,
-                        len: path.len + 1,
-                        smalls: {
-                            let mut s = path.smalls.clone();
-                            if is_small {
-                                s.push(next);
-                            }
-                            s
-                        },
-                        small2_spent: path.small2_spent
-                            || (is_small && path.smalls.contains(&next)),
-                    }
+                let is_small = next.chars().next().unwrap().is_lowercase();
+                let mut smalls = path.smalls.clone();
+                if is_small {
+                    smalls.push(next);
+                }
+                queue.push_back(Path {
+                    current: next,
+                    len: path.len + 1,
+                    smalls,
+                    small2_spent: path.small2_spent || (is_small && path.smalls.contains(&next)),
                 });
             }
         }
