@@ -34,12 +34,12 @@ fn count_paths<'a>(map: &HashMap<&'a str, HashSet<&'a str>>, small_twice: bool) 
                         Path {
                             current: next,
                             len: path.len + 1,
-                            smalls: if is_small {
+                            smalls: {
                                 let mut s = path.smalls.clone();
-                                s.push(next);
+                                if is_small {
+                                    s.push(next);
+                                }
                                 s
-                            } else {
-                                path.smalls.clone()
                             },
                             small2_spent: path.small2_spent
                                 || (is_small && path.smalls.contains(&next)),
