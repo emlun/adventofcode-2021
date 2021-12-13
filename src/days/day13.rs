@@ -2,11 +2,12 @@ use crate::common::Solution;
 use std::collections::HashSet;
 
 fn print_map(map: &HashSet<(usize, usize)>) {
-    for r in 0..20 {
+    let maxx = *map.iter().map(|(x, _)| x).max().unwrap();
+    for r in 0..=(*map.iter().map(|(_, y)| y).max().unwrap()) {
         println!(
             "{}",
-            (0..20)
-                .map(|c| if map.contains(&(r, c)) { '#' } else { '.' })
+            (0..=maxx)
+                .map(|c| if map.contains(&(c, r)) { '#' } else { '.' })
                 .collect::<String>()
         );
     }
@@ -54,6 +55,7 @@ pub fn solve(lines: &[String]) -> Solution {
 
     let folded_fully: HashSet<(usize, usize)> =
         folds.fold(folded_once, |map, next_fold| fold_map(map, next_fold));
+    print_map(&folded_fully);
 
     let sol_b = 0;
 
