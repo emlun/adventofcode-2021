@@ -1,16 +1,16 @@
 use crate::common::Solution;
 use std::collections::HashSet;
 
-fn print_map(map: &HashSet<(usize, usize)>) {
+fn format_map(map: &HashSet<(usize, usize)>) -> String {
     let maxx = *map.iter().map(|(x, _)| x).max().unwrap();
-    for r in 0..=(*map.iter().map(|(_, y)| y).max().unwrap()) {
-        println!(
-            "{}",
+    (0..=(*map.iter().map(|(_, y)| y).max().unwrap()))
+        .map(|r| {
             (0..=maxx)
                 .map(|c| if map.contains(&(c, r)) { '#' } else { '.' })
                 .collect::<String>()
-        );
-    }
+        })
+        .collect::<Vec<String>>()
+        .join("\n")
 }
 
 fn fold_map(map: HashSet<(usize, usize)>, fold_line: &str) -> HashSet<(usize, usize)> {
@@ -55,9 +55,8 @@ pub fn solve(lines: &[String]) -> Solution {
 
     let folded_fully: HashSet<(usize, usize)> =
         folds.fold(folded_once, |map, next_fold| fold_map(map, next_fold));
-    print_map(&folded_fully);
 
-    let sol_b = 0;
+    let sol_b = format_map(&folded_fully);
 
-    (sol_a.to_string(), sol_b.to_string())
+    (sol_a.to_string(), format!("\n{}", sol_b))
 }
