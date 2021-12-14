@@ -9,15 +9,11 @@ fn grow<'a>(
     polymer.into_iter().fold(
         HashMap::new(),
         |mut result, (pair, count): (&str, usize)| {
-            if rules.contains_key(&pair) {
-                if let Some((p1, p2)) = rules.get(pair) {
-                    *result.entry(p1).or_insert(0) += count;
-                    *result.entry(p2).or_insert(0) += count;
-                }
-                result
-            } else {
-                result
+            if let Some((p1, p2)) = rules.get(pair) {
+                *result.entry(p1).or_insert(0) += count;
+                *result.entry(p2).or_insert(0) += count;
             }
+            result
         },
     )
 }
