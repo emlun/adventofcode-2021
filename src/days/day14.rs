@@ -22,7 +22,7 @@ fn grow<'a>(
     )
 }
 
-fn pairs<'a, 'b>(s: &'a str) -> Vec<&'a str> {
+fn pairs(s: &str) -> Vec<&str> {
     (0..(s.len() - 1)).map(|i| &s[i..=(i + 1)]).collect()
 }
 
