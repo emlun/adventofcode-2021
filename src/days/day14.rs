@@ -18,7 +18,7 @@ fn grow<'a>(
     )
 }
 
-fn count_elements(polymer: &HashMap<&str, usize>, template: &str) -> HashMap<char, usize> {
+fn count_solution(polymer: &HashMap<&str, usize>, template: &str) -> usize {
     let mut elem_counts: HashMap<char, usize> =
         polymer
             .iter()
@@ -29,7 +29,7 @@ fn count_elements(polymer: &HashMap<&str, usize>, template: &str) -> HashMap<cha
     *elem_counts
         .get_mut(&template.chars().last().unwrap())
         .unwrap() += 1;
-    elem_counts
+    elem_counts.values().max().unwrap() - elem_counts.values().min().unwrap()
 }
 
 pub fn solve(lines: &[String]) -> Solution {
@@ -56,14 +56,10 @@ pub fn solve(lines: &[String]) -> Solution {
         .map(|i| &template[i..=(i + 1)])
         .counts();
     let grown = (0..10).fold(pair_counts, |pair_counts, _| grow(&rules, pair_counts));
-
-    let elem_counts: HashMap<char, usize> = count_elements(&grown, template);
-    let sol_a = elem_counts.values().max().unwrap() - elem_counts.values().min().unwrap();
+    let sol_a = count_solution(&grown, template);
 
     let grown = (10..40).fold(grown, |pair_counts, _| grow(&rules, pair_counts));
-
-    let elem_counts: HashMap<char, usize> = count_elements(&grown, template);
-    let sol_b = elem_counts.values().max().unwrap() - elem_counts.values().min().unwrap();
+    let sol_b = count_solution(&grown, template);
 
     (sol_a.to_string(), sol_b.to_string())
 }
