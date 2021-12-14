@@ -22,10 +22,6 @@ fn grow<'a>(
     )
 }
 
-fn pairs(s: &str) -> Vec<&str> {
-    (0..(s.len() - 1)).map(|i| &s[i..=(i + 1)]).collect()
-}
-
 fn count_elements(polymer: &HashMap<&str, usize>, template: &str) -> HashMap<char, usize> {
     let mut elem_counts: HashMap<char, usize> =
         polymer
@@ -60,7 +56,9 @@ pub fn solve(lines: &[String]) -> Solution {
         .map(|(k, (v1, v2))| (*k, (v1.as_str(), v2.as_str())))
         .collect();
 
-    let pair_counts = pairs(template).into_iter().counts();
+    let pair_counts = (0..(template.len() - 1))
+        .map(|i| &template[i..=(i + 1)])
+        .counts();
     let grown = (0..10).fold(pair_counts, |pair_counts, _| grow(&rules, pair_counts));
 
     let elem_counts: HashMap<char, usize> = count_elements(&grown, template);
