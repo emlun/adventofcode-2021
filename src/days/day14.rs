@@ -48,7 +48,7 @@ pub fn solve(lines: &[String]) -> Solution {
             )
         })
         .collect();
-    let pairs: HashSet<&str> = rules
+    let int_to_name: HashMap<usize, &str> = rules
         .keys()
         .copied()
         .chain(rules.values().flat_map(|(a, b)| {
@@ -56,10 +56,11 @@ pub fn solve(lines: &[String]) -> Solution {
                 .into_iter()
                 .chain(Some(b.as_str()).into_iter())
         }))
+        .collect::<HashSet<&str>>()
+        .into_iter()
+        .enumerate()
         .collect();
-    let int_to_name: HashMap<usize, &str> = pairs.iter().copied().enumerate().collect();
-    let name_to_int: HashMap<&str, usize> =
-        pairs.into_iter().enumerate().map(|(i, n)| (n, i)).collect();
+    let name_to_int: HashMap<&str, usize> = int_to_name.iter().map(|(k, v)| (*v, *k)).collect();
     let rules_int: Vec<(usize, usize)> = (0..=*int_to_name.keys().max().unwrap())
         .map(|i| {
             let (a, b) = &rules[int_to_name[&i]];
