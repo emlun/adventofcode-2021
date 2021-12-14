@@ -1,19 +1,29 @@
 use crate::common::Solution;
 use crate::util::iter::Countable;
 use std::collections::HashMap;
-use std::collections::HashSet;
 
-fn grow(rules: &HashMap<&str, &str>, polymer: String) -> String {
-    (0..(polymer.len() - 1))
-        .map(|i| {
-            format!(
-                "{}{}",
-                &polymer[i..=i],
-                rules.get(&polymer[i..=(i + 1)]).unwrap_or(&""),
-            )
-        })
-        .collect::<String>()
-        + &polymer[(polymer.len() - 1)..=(polymer.len() - 1)]
+fn grow<'a>(
+    rules: &HashMap<&'a str, (&'a str, &'a str)>,
+    polymer: HashMap<&'a str, usize>,
+) -> HashMap<&'a str, usize> {
+    polymer.into_iter().fold(
+        HashMap::new(),
+        |mut result, (pair, count): (&str, usize)| {
+            if rules.contains_key(&pair) {
+                if let Some((p1, p2)) = rules.get(pair) {
+                    *result.entry(p1).or_insert(0) += count;
+                    *result.entry(p2).or_insert(0) += count;
+                }
+                result
+            } else {
+                result
+            }
+        },
+    )
+}
+
+fn pairs<'a, 'b>(s: &'a str) -> Vec<&'a str> {
+    (0..(s.len() - 1)).map(|i| &s[i..=(i + 1)]).collect()
 }
 
 pub fn solve(lines: &[String]) -> Solution {
@@ -27,11 +37,51 @@ pub fn solve(lines: &[String]) -> Solution {
         })
         .collect();
 
-    let grown = (0..10).fold(template.to_string(), |polymer, _| grow(&rules, polymer));
-    let counts = grown.chars().counts();
+    let rules2: HashMap<&str, (String, String)> = rules
+        .iter()
+        .map(|(k, v)| {
+            (
+                *k,
+                (format!("{}{}", &k[0..1], v), format!("{}{}", v, &k[1..2])),
+            )
+        })
+        .collect();
+    let rules22: HashMap<&str, (&str, &str)> = rules2
+        .iter()
+        .map(|(k, (v1, v2))| (*k, (v1.as_str(), v2.as_str())))
+        .collect();
 
-    let sol_a = counts.values().max().unwrap() - counts.values().min().unwrap();
-    let sol_b = 0;
+    let pair_counts = pairs(template).into_iter().counts();
+    let grown = (0..10).fold(pair_counts, |pair_counts, _| grow(&rules22, pair_counts));
+
+    let mut elem_counts: HashMap<char, usize> =
+        grown
+            .iter()
+            .fold(HashMap::new(), |mut counts, (pair, count)| {
+                let mut ch = pair.chars();
+                *counts.entry(ch.next().unwrap()).or_insert(0) += count;
+                counts
+            });
+    *elem_counts
+        .get_mut(&template.chars().last().unwrap())
+        .unwrap() += 1;
+
+    let sol_a = elem_counts.values().max().unwrap() - elem_counts.values().min().unwrap();
+
+    let grown = (10..40).fold(grown, |pair_counts, _| grow(&rules22, pair_counts));
+    let mut elem_counts: HashMap<char, usize> =
+        grown
+            .iter()
+            .fold(HashMap::new(), |mut counts, (pair, count)| {
+                let mut ch = pair.chars();
+                *counts.entry(ch.next().unwrap()).or_insert(0) += count;
+                counts
+            });
+    *elem_counts
+        .get_mut(&template.chars().last().unwrap())
+        .unwrap() += 1;
+
+    let sol_b = elem_counts.values().max().unwrap() - elem_counts.values().min().unwrap();
 
     (sol_a.to_string(), sol_b.to_string())
 }
