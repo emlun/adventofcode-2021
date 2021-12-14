@@ -3,29 +3,27 @@ use crate::util::iter::Countable;
 use std::collections::HashMap;
 use std::collections::HashSet;
 
-fn grow(rules: &[(usize, usize)], polymer: HashMap<usize, usize>) -> HashMap<usize, usize> {
-    polymer.into_iter().fold(
-        HashMap::new(),
-        |mut result, (pair, count): (usize, usize)| {
+fn grow(rules: &[(usize, usize)], polymer: Vec<usize>) -> Vec<usize> {
+    let l = polymer.len();
+    polymer
+        .into_iter()
+        .enumerate()
+        .fold(vec![0; l], |mut result, (pair, count): (usize, usize)| {
             let (p1, p2) = rules[pair];
-            *result.entry(p1).or_insert(0) += count;
-            *result.entry(p2).or_insert(0) += count;
+            result[p1] += count;
+            result[p2] += count;
             result
-        },
-    )
+        })
 }
 
-fn count_solution(
-    int_to_name: &HashMap<usize, &str>,
-    polymer: &HashMap<usize, usize>,
-    template: &str,
-) -> usize {
+fn count_solution(int_to_name: &HashMap<usize, &str>, polymer: &[usize], template: &str) -> usize {
     let mut elem_counts: HashMap<char, usize> =
         polymer
             .iter()
+            .enumerate()
             .fold(HashMap::new(), |mut counts, (pair, count)| {
                 *counts
-                    .entry(int_to_name[pair].chars().next().unwrap())
+                    .entry(int_to_name[&pair].chars().next().unwrap())
                     .or_insert(0) += count;
                 counts
             });
@@ -69,13 +67,18 @@ pub fn solve(lines: &[String]) -> Solution {
         })
         .collect();
 
-    let pair_counts: HashMap<usize, usize> = (0..(template.len() - 1))
+    let polymer: Vec<usize> = (0..(template.len() - 1))
         .map(|i| name_to_int[&&template[i..=(i + 1)]])
-        .counts();
-    let grown = (0..10).fold(pair_counts, |pair_counts, _| grow(&rules_int, pair_counts));
+        .counts()
+        .into_iter()
+        .fold(vec![0; int_to_name.len()], |mut counts, (i, count)| {
+            counts[i] = count;
+            counts
+        });
+    let grown = (0..10).fold(polymer, |polymer, _| grow(&rules_int, polymer));
     let sol_a = count_solution(&int_to_name, &grown, template);
 
-    let grown = (10..40).fold(grown, |pair_counts, _| grow(&rules_int, pair_counts));
+    let grown = (10..40).fold(grown, |polymer, _| grow(&rules_int, polymer));
     let sol_b = count_solution(&int_to_name, &grown, template);
 
     (sol_a.to_string(), sol_b.to_string())
