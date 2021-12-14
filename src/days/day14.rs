@@ -16,7 +16,7 @@ fn grow(rules: &[(usize, usize)], polymer: HashMap<usize, usize>) -> HashMap<usi
 }
 
 fn count_solution(
-    int_to_name: &HashMap<usize, &&str>,
+    int_to_name: &HashMap<usize, &str>,
     polymer: &HashMap<usize, usize>,
     template: &str,
 ) -> usize {
@@ -50,25 +50,22 @@ pub fn solve(lines: &[String]) -> Solution {
             )
         })
         .collect();
-    let rules: HashMap<&str, (&str, &str)> = rules
-        .iter()
-        .map(|(k, (v1, v2))| (*k, (v1.as_str(), v2.as_str())))
-        .collect();
-    let pairs: HashSet<&&str> = rules
+    let pairs: HashSet<&str> = rules
         .keys()
-        .chain(
-            rules
-                .values()
-                .flat_map(|(a, b)| Some(a).into_iter().chain(Some(b).into_iter())),
-        )
+        .copied()
+        .chain(rules.values().flat_map(|(a, b)| {
+            Some(a.as_str())
+                .into_iter()
+                .chain(Some(b.as_str()).into_iter())
+        }))
         .collect();
-    let int_to_name: HashMap<usize, &&str> = pairs.iter().copied().enumerate().collect();
-    let name_to_int: HashMap<&&str, usize> =
+    let int_to_name: HashMap<usize, &str> = pairs.iter().copied().enumerate().collect();
+    let name_to_int: HashMap<&str, usize> =
         pairs.into_iter().enumerate().map(|(i, n)| (n, i)).collect();
     let rules_int: Vec<(usize, usize)> = (0..=*int_to_name.keys().max().unwrap())
         .map(|i| {
             let (a, b) = &rules[int_to_name[&i]];
-            (name_to_int[a], name_to_int[b])
+            (name_to_int[&a.as_str()], name_to_int[&b.as_str()])
         })
         .collect();
 
