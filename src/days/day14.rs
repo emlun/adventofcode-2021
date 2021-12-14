@@ -16,14 +16,14 @@ fn grow(rules: &[(usize, usize)], polymer: Vec<usize>) -> Vec<usize> {
         })
 }
 
-fn count_solution(int_to_name: &HashMap<usize, &str>, polymer: &[usize], template: &str) -> usize {
+fn count_solution(int_to_name: &[&str], polymer: &[usize], template: &str) -> usize {
     let mut elem_counts: HashMap<char, usize> =
         polymer
             .iter()
             .enumerate()
             .fold(HashMap::new(), |mut counts, (pair, count)| {
                 *counts
-                    .entry(int_to_name[&pair].chars().next().unwrap())
+                    .entry(int_to_name[pair].chars().next().unwrap())
                     .or_insert(0) += count;
                 counts
             });
@@ -48,7 +48,8 @@ pub fn solve(lines: &[String]) -> Solution {
             )
         })
         .collect();
-    let int_to_name: HashMap<usize, &str> = rules
+
+    let int_to_name: Vec<&str> = rules
         .keys()
         .copied()
         .chain(rules.values().flat_map(|(a, b)| {
@@ -58,12 +59,15 @@ pub fn solve(lines: &[String]) -> Solution {
         }))
         .collect::<HashSet<&str>>()
         .into_iter()
-        .enumerate()
         .collect();
-    let name_to_int: HashMap<&str, usize> = int_to_name.iter().map(|(k, v)| (*v, *k)).collect();
-    let rules_int: Vec<(usize, usize)> = (0..=*int_to_name.keys().max().unwrap())
+    let name_to_int: HashMap<&str, usize> = int_to_name
+        .iter()
+        .enumerate()
+        .map(|(k, v)| (*v, k))
+        .collect();
+    let rules_int: Vec<(usize, usize)> = (0..int_to_name.len())
         .map(|i| {
-            let (a, b) = &rules[int_to_name[&i]];
+            let (a, b) = &rules[int_to_name[i]];
             (name_to_int[&a.as_str()], name_to_int[&b.as_str()])
         })
         .collect();
