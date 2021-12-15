@@ -64,23 +64,19 @@ pub fn solve(lines: &[String]) -> Solution {
         .collect();
 
     let sol_a = search(&map);
-    let width = map[0].len();
-    let height = map.len();
     let sol_b = search(
-        &map.into_iter()
-            .cycle()
-            .take(5 * height)
+        &std::iter::repeat(map)
+            .take(5)
             .enumerate()
+            .flat_map(|(ri, rows)| rows.into_iter().map(move |row| (ri, row)))
             .map(|(ri, row)| {
-                row.into_iter()
-                    .cycle()
-                    .take(5 * width)
+                std::iter::repeat(row)
+                    .take(5)
                     .enumerate()
+                    .flat_map(|(ci, row)| row.into_iter().map(move |cell| (ci, cell)))
                     .map(|(ci, cell)| {
-                        let newcell = (cell
-                            + u8::try_from(ri / height).unwrap()
-                            + u8::try_from(ci / width).unwrap())
-                            % 9;
+                        let newcell =
+                            (cell + u8::try_from(ri).unwrap() + u8::try_from(ci).unwrap()) % 9;
                         if newcell == 0 {
                             9
                         } else {
