@@ -61,14 +61,40 @@ fn search(map: &[Vec<u8>]) -> usize {
 }
 
 pub fn solve(lines: &[String]) -> Solution {
-    let mut map: Vec<Vec<u8>> = lines
+    let map: Vec<Vec<u8>> = lines
         .iter()
         .filter(|l| !l.is_empty())
         .map(|l| l.chars().map(|c| c.to_digit(10).unwrap() as u8).collect())
         .collect();
 
-    let mut sol_a = search(&map);
-    let mut sol_b = 0;
+    let sol_a = search(&map);
+    let width = map[0].len();
+    let height = map.len();
+    let sol_b = search(
+        &map.into_iter()
+            .cycle()
+            .take(5 * height)
+            .enumerate()
+            .map(|(ri, row)| {
+                row.into_iter()
+                    .cycle()
+                    .take(5 * width)
+                    .enumerate()
+                    .map(|(ci, cell)| {
+                        let newcell = (cell
+                            + u8::try_from(ri / height).unwrap()
+                            + u8::try_from(ci / width).unwrap())
+                            % 9;
+                        if newcell == 0 {
+                            9
+                        } else {
+                            newcell
+                        }
+                    })
+                    .collect()
+            })
+            .collect::<Vec<Vec<u8>>>(),
+    );
 
     (sol_a.to_string(), sol_b.to_string())
 }
