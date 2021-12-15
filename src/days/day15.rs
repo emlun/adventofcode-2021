@@ -24,7 +24,7 @@ fn search(map: &[Vec<u8>]) -> usize {
     let height = map.len();
     let width = map[0].len();
     let goal = (width - 1, height - 1);
-    let mut minmap = vec![vec![0; width]; height];
+    let mut visited = vec![vec![false; width]; height];
     queue.push(Path {
         pos: (0, 0),
         risk: 0,
@@ -33,8 +33,8 @@ fn search(map: &[Vec<u8>]) -> usize {
         let (x, y) = pos;
         if pos == goal {
             return risk;
-        } else if minmap[y][x] == 0 || risk < minmap[y][x] {
-            minmap[y][x] = risk;
+        } else if !visited[y][x] {
+            visited[y][x] = true;
             queue.extend(
                 [
                     (x.saturating_sub(1), y),
@@ -45,7 +45,7 @@ fn search(map: &[Vec<u8>]) -> usize {
                 .iter()
                 .copied()
                 .filter(|(xx, yy)| {
-                    (*xx != x || *yy != y) && *xx < width && *yy < height && minmap[*yy][*xx] == 0
+                    (*xx != x || *yy != y) && *xx < width && *yy < height && !visited[*yy][*xx]
                 })
                 .map(|(xx, yy)| Path {
                     pos: (xx, yy),
