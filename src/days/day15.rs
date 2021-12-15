@@ -24,7 +24,6 @@ fn search(map: &[Vec<u8>]) -> usize {
     let height = map.len();
     let width = map[0].len();
     let goal = (width - 1, height - 1);
-    // let (goalx, goaly) = goal;
     let mut minmap = vec![vec![0; width]; height];
     queue.push(Path {
         pos: (0, 0),
@@ -32,8 +31,6 @@ fn search(map: &[Vec<u8>]) -> usize {
     });
     while let Some(Path { pos, risk }) = queue.pop() {
         let (x, y) = pos;
-        // if minmap[goaly][goalx] > 0 && minmap[goaly][goalx] <= risk {
-        // break;
         if pos == goal {
             return risk;
         } else if minmap[y][x] == 0 || risk < minmap[y][x] {
@@ -56,7 +53,6 @@ fn search(map: &[Vec<u8>]) -> usize {
             );
         }
     }
-    // minmap[goaly][goalx]
     unreachable!()
 }
 
