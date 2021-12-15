@@ -37,16 +37,15 @@ fn search(map: &[Vec<u8>]) -> usize {
             visited[y][x] = true;
             queue.extend(
                 [
-                    (x.saturating_sub(1), y),
-                    (x + 1, y),
-                    (x, y.saturating_sub(1)),
-                    (x, y + 1),
+                    x.checked_sub(1).map(|xx| (xx, y)),
+                    Some((x + 1, y)).filter(|(xx, _)| *xx < width),
+                    y.checked_sub(1).map(|yy| (x, yy)),
+                    Some((x, y + 1)).filter(|(_, yy)| *yy < height),
                 ]
                 .iter()
+                .flatten()
                 .copied()
-                .filter(|(xx, yy)| {
-                    (*xx != x || *yy != y) && *xx < width && *yy < height && !visited[*yy][*xx]
-                })
+                .filter(|(xx, yy)| !visited[*yy][*xx])
                 .map(|(xx, yy)| Path {
                     pos: (xx, yy),
                     risk: risk + usize::from(map[yy][xx]),
