@@ -44,8 +44,9 @@ fn search(map: &[Vec<u8>]) -> usize {
                 ]
                 .iter()
                 .copied()
-                .filter(|(xx, yy)| (*xx != x || *yy != y) && *xx < width && *yy < height)
-                .filter(|(xx, yy)| minmap[*yy][*xx] == 0)
+                .filter(|(xx, yy)| {
+                    (*xx != x || *yy != y) && *xx < width && *yy < height && minmap[*yy][*xx] == 0
+                })
                 .map(|(xx, yy)| Path {
                     pos: (xx, yy),
                     risk: risk + usize::from(map[yy][xx]),
