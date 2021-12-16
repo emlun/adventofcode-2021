@@ -46,8 +46,8 @@ impl Packet {
                         let len_type = bits.next().unwrap();
                         if len_type == 0 {
                             let bit_len = read_num(bits, 15);
-                            let mut subpacket_bits = (0..bit_len)
-                                .flat_map(|_| bits.next())
+                            let mut subpacket_bits = std::iter::from_fn(|| bits.next())
+                                .take(usize::try_from(bit_len).unwrap())
                                 .collect::<Vec<u8>>()
                                 .into_iter();
                             Subpackets(
