@@ -50,21 +50,16 @@ impl Packet {
                                 .flat_map(|_| bits.next())
                                 .collect::<Vec<u8>>()
                                 .into_iter();
-                            let mut subpackets: Vec<Packet> = Vec::new();
-                            while let Some(subpacket) = Packet::parse(&mut subpacket_bits) {
-                                subpackets.push(subpacket);
-                            }
-                            Subpackets(subpackets)
+                            Subpackets(
+                                std::iter::from_fn(|| Packet::parse(&mut subpacket_bits)).collect(),
+                            )
                         } else {
                             let subpacket_len = usize::try_from(read_num(bits, 11)).unwrap();
-                            let mut subpackets: Vec<Packet> = Vec::new();
-                            while let Some(subpacket) = Packet::parse(bits) {
-                                subpackets.push(subpacket);
-                                if subpackets.len() == subpacket_len {
-                                    break;
-                                }
-                            }
-                            Subpackets(subpackets)
+                            Subpackets(
+                                std::iter::from_fn(|| Packet::parse(bits))
+                                    .take(subpacket_len)
+                                    .collect(),
+                            )
                         }
                     }
                 },
