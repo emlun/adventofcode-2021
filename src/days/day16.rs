@@ -80,34 +80,17 @@ impl Packet {
                 1 => subs.iter().map(|s| s.compute_value()).product(),
                 2 => subs.iter().map(|s| s.compute_value()).min().unwrap(),
                 3 => subs.iter().map(|s| s.compute_value()).max().unwrap(),
-                5 => {
+                _ => {
                     let a = subs[0].compute_value();
                     let b = subs[1].compute_value();
-                    if a > b {
-                        1
-                    } else {
-                        0
-                    }
+                    (match self.typ {
+                        5 => a > b,
+                        6 => a < b,
+                        7 => a == b,
+                        _ => unreachable!(),
+                    })
+                    .into()
                 }
-                6 => {
-                    let a = subs[0].compute_value();
-                    let b = subs[1].compute_value();
-                    if a < b {
-                        1
-                    } else {
-                        0
-                    }
-                }
-                7 => {
-                    let a = subs[0].compute_value();
-                    let b = subs[1].compute_value();
-                    if a == b {
-                        1
-                    } else {
-                        0
-                    }
-                }
-                _ => unreachable!(),
             },
         }
     }
