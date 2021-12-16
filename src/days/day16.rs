@@ -46,9 +46,10 @@ impl Packet {
                         let len_type = bits.next().unwrap();
                         if len_type == 0 {
                             let bit_len = read_num(bits, 15);
-                            let subpacket_bits: Vec<u8> =
-                                (0..bit_len).flat_map(|_| bits.next()).collect();
-                            let mut subpacket_bits = subpacket_bits.into_iter();
+                            let mut subpacket_bits = (0..bit_len)
+                                .flat_map(|_| bits.next())
+                                .collect::<Vec<u8>>()
+                                .into_iter();
                             let mut subpackets: Vec<Packet> = Vec::new();
                             while let Some(subpacket) = Packet::parse(&mut subpacket_bits) {
                                 subpackets.push(subpacket);
