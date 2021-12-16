@@ -19,10 +19,23 @@ impl PartialOrd for Path {
     }
 }
 
-fn search(map: &[Vec<u8>]) -> usize {
+fn mod1(x: usize, n: usize) -> usize {
+    let y = x % n;
+    if y == 0 {
+        n
+    } else {
+        y
+    }
+}
+
+fn search(map: &[Vec<u8>], extend: bool) -> usize {
     let mut queue = BinaryHeap::new();
-    let height = map.len();
-    let width = map[0].len();
+    let (base_height, base_width) = (map.len(), map[0].len());
+    let (height, width) = if extend {
+        (base_height * 5, base_width * 5)
+    } else {
+        (base_height, base_width)
+    };
     let goal = (width - 1, height - 1);
     let mut visited = vec![vec![false; width]; height];
     queue.push(Path {
@@ -48,7 +61,13 @@ fn search(map: &[Vec<u8>]) -> usize {
                 .filter(|(xx, yy)| !visited[*yy][*xx])
                 .map(|(xx, yy)| Path {
                     pos: (xx, yy),
-                    risk: risk + usize::from(map[yy][xx]),
+                    risk: risk
+                        + mod1(
+                            usize::from(map[yy % base_height][xx % base_width])
+                                + yy / base_height
+                                + xx / base_width,
+                            9,
+                        ),
                 }),
             );
         }
@@ -63,30 +82,8 @@ pub fn solve(lines: &[String]) -> Solution {
         .map(|l| l.chars().map(|c| c.to_digit(10).unwrap() as u8).collect())
         .collect();
 
-    let sol_a = search(&map);
-    let sol_b = search(
-        &std::iter::repeat(map)
-            .take(5)
-            .enumerate()
-            .flat_map(|(ri, rows)| rows.into_iter().map(move |row| (ri, row)))
-            .map(|(ri, row)| {
-                std::iter::repeat(row)
-                    .take(5)
-                    .enumerate()
-                    .flat_map(|(ci, row)| row.into_iter().map(move |cell| (ci, cell)))
-                    .map(|(ci, cell)| {
-                        let newcell =
-                            (cell + u8::try_from(ri).unwrap() + u8::try_from(ci).unwrap()) % 9;
-                        if newcell == 0 {
-                            9
-                        } else {
-                            newcell
-                        }
-                    })
-                    .collect()
-            })
-            .collect::<Vec<Vec<u8>>>(),
-    );
+    let sol_a = search(&map, false);
+    let sol_b = search(&map, true);
 
     (sol_a.to_string(), sol_b.to_string())
 }
