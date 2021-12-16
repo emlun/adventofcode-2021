@@ -28,18 +28,16 @@ impl Packet {
                 ver,
                 typ,
                 body: if typ == 4 {
-                    let mut body_nibbles = Vec::new();
-                    while let Some(first_bit) = bits.next() {
-                        body_nibbles.push(read_num(bits, 4));
-                        if first_bit == 0 {
-                            break;
+                    Literal({
+                        let mut acc = 0;
+                        while let Some(num_continues) = bits.next() {
+                            acc = (acc << 4) | read_num(bits, 4);
+                            if num_continues == 0 {
+                                break;
+                            }
                         }
-                    }
-                    Literal(
-                        body_nibbles
-                            .into_iter()
-                            .fold(0, |acc, nibble| (acc << 4) | nibble),
-                    )
+                        acc
+                    })
                 } else {
                     let len_type = bits.next().unwrap();
                     if len_type == 0 {
