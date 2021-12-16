@@ -22,8 +22,8 @@ fn read_num<I: Iterator<Item = u8>>(bits: &mut I, bit_len: usize) -> u64 {
 impl Packet {
     fn parse<I: Iterator<Item = u8>>(bits: &mut I) -> Option<Packet> {
         bits.next().map(|first| {
-            let ver = (first << 2) | (read_num(bits, 2) as u8);
-            let typ = read_num(bits, 3) as u8;
+            let ver = (first << 2) | (u8::try_from(read_num(bits, 2)).unwrap());
+            let typ = u8::try_from(read_num(bits, 3)).unwrap();
             Packet {
                 ver,
                 typ,
@@ -39,7 +39,7 @@ impl Packet {
                         Literal(
                             body_nibbles
                                 .into_iter()
-                                .fold(0, |acc, nibble| (acc << 4) | u64::from(nibble)),
+                                .fold(0, |acc, nibble| (acc << 4) | nibble),
                         )
                     }
                     _ => {
