@@ -27,40 +27,37 @@ impl Packet {
             Packet {
                 ver,
                 typ,
-                body: match typ {
-                    4 => {
-                        let mut body_nibbles = Vec::new();
-                        while let Some(first_bit) = bits.next() {
-                            body_nibbles.push(read_num(bits, 4));
-                            if first_bit == 0 {
-                                break;
-                            }
+                body: if typ == 4 {
+                    let mut body_nibbles = Vec::new();
+                    while let Some(first_bit) = bits.next() {
+                        body_nibbles.push(read_num(bits, 4));
+                        if first_bit == 0 {
+                            break;
                         }
-                        Literal(
-                            body_nibbles
-                                .into_iter()
-                                .fold(0, |acc, nibble| (acc << 4) | nibble),
-                        )
                     }
-                    _ => {
-                        let len_type = bits.next().unwrap();
-                        if len_type == 0 {
-                            let bit_len = read_num(bits, 15);
-                            let mut subpacket_bits = std::iter::from_fn(|| bits.next())
-                                .take(usize::try_from(bit_len).unwrap())
-                                .collect::<Vec<u8>>()
-                                .into_iter();
-                            Subpackets(
-                                std::iter::from_fn(|| Packet::parse(&mut subpacket_bits)).collect(),
-                            )
-                        } else {
-                            let subpacket_len = usize::try_from(read_num(bits, 11)).unwrap();
-                            Subpackets(
-                                std::iter::from_fn(|| Packet::parse(bits))
-                                    .take(subpacket_len)
-                                    .collect(),
-                            )
-                        }
+                    Literal(
+                        body_nibbles
+                            .into_iter()
+                            .fold(0, |acc, nibble| (acc << 4) | nibble),
+                    )
+                } else {
+                    let len_type = bits.next().unwrap();
+                    if len_type == 0 {
+                        let bit_len = read_num(bits, 15);
+                        let mut subpacket_bits = std::iter::from_fn(|| bits.next())
+                            .take(usize::try_from(bit_len).unwrap())
+                            .collect::<Vec<u8>>()
+                            .into_iter();
+                        Subpackets(
+                            std::iter::from_fn(|| Packet::parse(&mut subpacket_bits)).collect(),
+                        )
+                    } else {
+                        let subpacket_len = usize::try_from(read_num(bits, 11)).unwrap();
+                        Subpackets(
+                            std::iter::from_fn(|| Packet::parse(bits))
+                                .take(subpacket_len)
+                                .collect(),
+                        )
                     }
                 },
             }
