@@ -78,6 +78,46 @@ impl Packet {
                 Subpackets(subs) => subs.iter().map(|s| s.sum_versions()).sum(),
             }
     }
+
+    fn compute_value(&self) -> u64 {
+        match &self.body {
+            Literal(value) => *value,
+            Subpackets(subs) => match self.typ {
+                0 => subs.iter().map(|s| s.compute_value()).sum(),
+                1 => subs.iter().map(|s| s.compute_value()).product(),
+                2 => subs.iter().map(|s| s.compute_value()).min().unwrap(),
+                3 => subs.iter().map(|s| s.compute_value()).max().unwrap(),
+                5 => {
+                    let a = subs[0].compute_value();
+                    let b = subs[1].compute_value();
+                    if a > b {
+                        1
+                    } else {
+                        0
+                    }
+                }
+                6 => {
+                    let a = subs[0].compute_value();
+                    let b = subs[1].compute_value();
+                    if a < b {
+                        1
+                    } else {
+                        0
+                    }
+                }
+                7 => {
+                    let a = subs[0].compute_value();
+                    let b = subs[1].compute_value();
+                    if a == b {
+                        1
+                    } else {
+                        0
+                    }
+                }
+                _ => unreachable!(),
+            },
+        }
+    }
 }
 
 pub fn solve(lines: &[String]) -> Solution {
@@ -90,7 +130,7 @@ pub fn solve(lines: &[String]) -> Solution {
     let message: Packet = Packet::parse(&mut bits).unwrap();
 
     let sol_a = message.sum_versions();
-    let sol_b = 0;
+    let sol_b = message.compute_value();
 
     (sol_a.to_string(), sol_b.to_string())
 }
