@@ -16,7 +16,9 @@ struct Packet {
 }
 
 fn read_num<I: Iterator<Item = u8>>(bits: &mut I, bit_len: usize) -> u64 {
-    (0..bit_len).fold(0, |acc, _| (acc << 1) | u64::from(bits.next().unwrap()))
+    bits.by_ref()
+        .take(bit_len)
+        .fold(0, |acc, bit| (acc << 1) | u64::from(bit))
 }
 
 impl Packet {
