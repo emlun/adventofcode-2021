@@ -73,8 +73,8 @@ fn solve_a(minx: i64, maxx: i64, miny: i64, maxy: i64) -> i64 {
     let vx_max = ((-0.5) + (0.25 + (maxx as f64) * 2.0).sqrt()).floor() as i64;
     // dbg!(vx_min, vx_max);
 
-    for topy in (0..miny.abs()).flat_map(|absvy| {
-        (vx_min..maxx)
+    for topy in (0..=miny.abs()).flat_map(|absvy| {
+        (vx_min..=maxx)
             .map(move |vx| simulate(minx, maxx, miny, maxy, vx, absvy))
             .skip_while(|result| result.is_none())
             .take_while(|result| result.is_some())
@@ -87,6 +87,15 @@ fn solve_a(minx: i64, maxx: i64, miny: i64, maxy: i64) -> i64 {
         }
     }
     top_topy
+}
+
+fn solve_b(minx: i64, maxx: i64, miny: i64, maxy: i64) -> usize {
+    let vx_min = ((-0.5) + (0.25 + (minx as f64) * 2.0).sqrt()).floor() as i64;
+    ((-miny.abs() * 2)..=(miny.abs() * 2))
+        .flat_map(|vy| {
+            (0..=(maxx * 2)).flat_map(move |vx| simulate(minx, maxx, miny, maxy, vx, vy))
+        })
+        .count()
 }
 
 pub fn solve(lines: &[String]) -> Solution {
@@ -123,7 +132,7 @@ pub fn solve(lines: &[String]) -> Solution {
     // dbg!(minx, maxx, miny, maxy);
 
     let sol_a = solve_a(minx, maxx, miny, maxy);
-    let sol_b = 0;
+    let sol_b = solve_b(minx, maxx, miny, maxy);
 
     (sol_a.to_string(), sol_b.to_string())
 }
