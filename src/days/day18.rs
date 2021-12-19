@@ -48,10 +48,12 @@ impl SnailNumber {
         })
     }
 
-    fn reduce(self) -> Self {
-        self.explode()
-            .or_else(Self::split)
-            .map_or_else(|unmodified| unmodified, Self::reduce)
+    fn reduce(mut self) -> Self {
+        if self.explode() || self.split() {
+            self.reduce()
+        } else {
+            self
+        }
     }
 
     fn find_explosion<'tree>(
@@ -82,7 +84,7 @@ impl SnailNumber {
         }
     }
 
-    fn explode(mut self) -> Result<Self, Self> {
+    fn explode(&mut self) -> bool {
         let mut left_recipient: Option<&mut u32> = None;
         let mut exploder: Option<&mut Self> = None;
         let mut right_recipient: Option<&mut u32> = None;
@@ -105,33 +107,25 @@ impl SnailNumber {
             } else {
                 unreachable!();
             }
-            Ok(self)
+            true
         } else {
-            Err(self)
+            false
         }
     }
 
-    fn split(self) -> Result<Self, Self> {
+    fn split(&mut self) -> bool {
         match self {
             Simple(simple) => {
-                if simple >= 10 {
-                    Ok(Self::pair(
-                        Simple(simple / 2),
-                        Simple(simple / 2 + simple % 2),
-                    ))
+                if *simple >= 10 {
+                    *self = Self::pair(Simple(*simple / 2), Simple(*simple / 2 + *simple % 2));
+                    true
                 } else {
-                    Err(self)
+                    false
                 }
             }
             Pair(leftright) => {
-                let (left, right) = *leftright;
-                match left.split() {
-                    Ok(left_splitted) => Ok(Self::pair(left_splitted, right)),
-                    Err(left_unmodified) => match right.split() {
-                        Ok(right_splitted) => Ok(Self::pair(left_unmodified, right_splitted)),
-                        Err(right_unmodified) => Err(Self::pair(left_unmodified, right_unmodified)),
-                    },
-                }
+                let (left, right) = leftright.as_mut();
+                left.split() || right.split()
             }
         }
     }
