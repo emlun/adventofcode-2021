@@ -48,15 +48,10 @@ impl SnailNumber {
         })
     }
 
-    fn reduce(mut self) -> Self {
-        if self.explode() {
-            self.reduce()
-        } else {
-            match self.split() {
-                Ok(modified) => modified.reduce(),
-                Err(unmodified) => unmodified,
-            }
-        }
+    fn reduce(self) -> Self {
+        self.explode()
+            .or_else(Self::split)
+            .map_or_else(|unmodified| unmodified, Self::reduce)
     }
 
     fn find_explosion<'tree>(
@@ -87,7 +82,7 @@ impl SnailNumber {
         }
     }
 
-    fn explode(&mut self) -> bool {
+    fn explode(mut self) -> Result<Self, Self> {
         let mut left_recipient: Option<&mut u32> = None;
         let mut exploder: Option<&mut Self> = None;
         let mut right_recipient: Option<&mut u32> = None;
@@ -109,9 +104,9 @@ impl SnailNumber {
             } else {
                 unreachable!();
             }
-            true
+            Ok(self)
         } else {
-            false
+            Err(self)
         }
     }
 
