@@ -3,7 +3,7 @@ use crate::common::Solution;
 #[derive(Clone, Debug)]
 enum SnailNumber {
     Simple(u32),
-    Pair(Box<SnailNumber>, Box<SnailNumber>),
+    Pair(Box<(SnailNumber, SnailNumber)>),
 }
 use SnailNumber::Pair;
 use SnailNumber::Simple;
@@ -12,7 +12,8 @@ impl std::fmt::Display for SnailNumber {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
         match self {
             Simple(simple) => write!(f, "{}", simple),
-            Pair(left, right) => {
+            Pair(leftright) => {
+                let (left, right) = leftright.as_ref();
                 write!(f, "[{},{}]", left, right)
             }
         }
@@ -28,7 +29,7 @@ impl std::str::FromStr for SnailNumber {
 
 impl SnailNumber {
     fn pair(left: Self, right: Self) -> Self {
-        Pair(Box::new(left), Box::new(right))
+        Pair(Box::new((left, right)))
     }
 
     fn parse<I: Iterator<Item = char>>(input: &mut I) -> Option<SnailNumber> {
@@ -77,7 +78,8 @@ impl SnailNumber {
                 pair @ Pair(..) if level >= 4 && exploder.is_none() => {
                     *exploder = Some(pair);
                 }
-                Pair(left, right) => {
+                Pair(leftright) => {
+                    let (left, right) = leftright.as_mut();
                     left.find_explosion(level + 1, left_recipient, exploder, right_recipient);
                     right.find_explosion(level + 1, left_recipient, exploder, right_recipient);
                 }
@@ -93,16 +95,11 @@ impl SnailNumber {
         if let Some(exploder) = exploder {
             let mut exploded = Simple(0);
             std::mem::swap(exploder, &mut exploded);
-            if let Pair(lex, rex) = exploded {
-                if let Simple(left_exploded) = *lex {
+            if let Pair(lexrex) = exploded {
+                if let (Simple(left_exploded), Simple(right_exploded)) = *lexrex {
                     if let Some(left_recipient) = left_recipient {
                         *left_recipient += left_exploded;
                     }
-                } else {
-                    unreachable!();
-                }
-
-                if let Simple(right_exploded) = *rex {
                     if let Some(right_recipient) = right_recipient {
                         *right_recipient += right_exploded;
                     }
@@ -130,20 +127,26 @@ impl SnailNumber {
                     Err(self)
                 }
             }
-            Pair(left, right) => match left.split() {
-                Ok(left_splitted) => Ok(Self::pair(left_splitted, *right)),
-                Err(left_unmodified) => match right.split() {
-                    Ok(right_splitted) => Ok(Self::pair(left_unmodified, right_splitted)),
-                    Err(right_unmodified) => Err(Self::pair(left_unmodified, right_unmodified)),
-                },
-            },
+            Pair(leftright) => {
+                let (left, right) = *leftright;
+                match left.split() {
+                    Ok(left_splitted) => Ok(Self::pair(left_splitted, right)),
+                    Err(left_unmodified) => match right.split() {
+                        Ok(right_splitted) => Ok(Self::pair(left_unmodified, right_splitted)),
+                        Err(right_unmodified) => Err(Self::pair(left_unmodified, right_unmodified)),
+                    },
+                }
+            }
         }
     }
 
     fn magnitude(&self) -> u32 {
         match self {
             Simple(simple) => *simple,
-            Pair(left, right) => 3 * left.magnitude() + 2 * right.magnitude(),
+            Pair(leftright) => {
+                let (left, right) = leftright.as_ref();
+                3 * left.magnitude() + 2 * right.magnitude()
+            }
         }
     }
 }
