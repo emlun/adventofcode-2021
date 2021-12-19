@@ -164,16 +164,9 @@ impl std::ops::Add for &SnailNumber {
 
 impl std::ops::AddAssign for SnailNumber {
     fn add_assign(&mut self, rhs: Self) {
-        let mut tmp = Self::pair(Simple(0), rhs);
+        let mut tmp = Simple(0);
         std::mem::swap(self, &mut tmp);
-        match self {
-            Pair(left, _) => {
-                std::mem::swap(&mut **left, &mut tmp);
-            }
-            _ => unreachable!(),
-        }
-        std::mem::swap(self, &mut tmp);
-        tmp = tmp.reduce();
+        tmp = Self::pair(tmp, rhs).reduce();
         std::mem::swap(self, &mut tmp);
     }
 }
