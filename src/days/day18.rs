@@ -48,11 +48,9 @@ impl SnailNumber {
         })
     }
 
-    fn reduce(mut self) -> Self {
+    fn reduce(&mut self) {
         if self.explode() || self.split() {
-            self.reduce()
-        } else {
-            self
+            self.reduce();
         }
     }
 
@@ -144,7 +142,9 @@ impl SnailNumber {
 impl std::ops::Add for SnailNumber {
     type Output = Self;
     fn add(self, rhs: Self) -> <Self as std::ops::Add>::Output {
-        Self::pair(self, rhs).reduce()
+        let mut result = Self::pair(self, rhs);
+        result.reduce();
+        result
     }
 }
 
@@ -159,7 +159,8 @@ impl std::ops::AddAssign for SnailNumber {
     fn add_assign(&mut self, rhs: Self) {
         let mut tmp = Simple(0);
         std::mem::swap(self, &mut tmp);
-        tmp = Self::pair(tmp, rhs).reduce();
+        tmp = Self::pair(tmp, rhs);
+        tmp.reduce();
         std::mem::swap(self, &mut tmp);
     }
 }
