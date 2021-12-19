@@ -1,6 +1,6 @@
 use crate::common::Solution;
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 enum SnailNumber {
     Simple(u32),
     Pair(Box<SnailNumber>, Box<SnailNumber>),
@@ -173,6 +173,13 @@ impl std::ops::Add for SnailNumber {
     }
 }
 
+impl std::ops::Add for &SnailNumber {
+    type Output = SnailNumber;
+    fn add(self, rhs: Self) -> <Self as std::ops::Add>::Output {
+        self.clone() + rhs.clone()
+    }
+}
+
 impl std::ops::AddAssign for SnailNumber {
     fn add_assign(&mut self, rhs: Self) {
         // println!("self: {}", self);
@@ -212,11 +219,17 @@ pub fn solve(lines: &[String]) -> Solution {
     // );
 
     let sol_a = nums
-        .into_iter()
+        .iter()
+        .cloned()
         .reduce(std::ops::Add::add)
         .unwrap()
         .magnitude();
-    let sol_b = 0;
+    let sol_b = (0..nums.len())
+        .flat_map(|i| (0..nums.len()).map(move |j| (i, j)))
+        .filter(|(i, j)| i != j)
+        .map(|(i, j)| (&nums[i] + &nums[j]).magnitude())
+        .max()
+        .unwrap();
 
     (sol_a.to_string(), sol_b.to_string())
 }
