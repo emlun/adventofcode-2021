@@ -185,18 +185,18 @@ pub fn solve(lines: &[String]) -> Solution {
         .map(|l| l.parse().unwrap())
         .collect();
 
-    let sol_a = nums
-        .iter()
-        .cloned()
-        .reduce(std::ops::Add::add)
-        .unwrap()
-        .magnitude();
     let sol_b = (0..nums.len())
         .flat_map(|i| (0..nums.len()).map(move |j| (i, j)))
         .filter(|(i, j)| i != j)
         .map(|(i, j)| (&nums[i] + &nums[j]).magnitude())
         .max()
         .unwrap();
+
+    let sol_a = nums
+        .into_iter()
+        .reduce(std::ops::Add::add)
+        .unwrap()
+        .magnitude();
 
     (sol_a.to_string(), sol_b.to_string())
 }
