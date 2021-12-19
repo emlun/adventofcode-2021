@@ -87,6 +87,7 @@ impl SnailNumber {
         let mut exploder: Option<&mut Self> = None;
         let mut right_recipient: Option<&mut u32> = None;
         self.find_explosion(0, &mut left_recipient, &mut exploder, &mut right_recipient);
+
         if let Some(exploder) = exploder {
             let mut exploded = Simple(0);
             std::mem::swap(exploder, &mut exploded);
