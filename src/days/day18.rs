@@ -49,18 +49,11 @@ impl SnailNumber {
 
     fn reduce(mut self) -> Self {
         if self.explode() {
-            // println!("Exploded: {}", self);
             self.reduce()
         } else {
             match self.split() {
-                Ok(modified) => {
-                    // println!("Splitted: {}", modified);
-                    modified.reduce()
-                }
-                Err(unmodified) => {
-                    // println!("Unmodified: {}", unmodified);
-                    unmodified
-                }
+                Ok(modified) => modified.reduce(),
+                Err(unmodified) => unmodified,
             }
         }
     }
@@ -98,11 +91,6 @@ impl SnailNumber {
         let mut right_recipient: Option<&mut u32> = None;
         self.find_explosion(0, &mut left_recipient, &mut exploder, &mut right_recipient);
         if let Some(exploder) = exploder {
-            // println!(
-            //     "Exploding: {:?} <- {} -> {:?}",
-            //     left_recipient, exploder, right_recipient
-            // );
-
             let mut exploded = Simple(0);
             std::mem::swap(exploder, &mut exploded);
             if let Pair(lex, rex) = exploded {
@@ -163,13 +151,7 @@ impl SnailNumber {
 impl std::ops::Add for SnailNumber {
     type Output = Self;
     fn add(self, rhs: Self) -> <Self as std::ops::Add>::Output {
-        // println!("self: {}", self);
-        // println!("rhs: {}", rhs);
-        let result = Self::pair(self, rhs);
-        // println!("added: {}", result);
-        let reduced = result.reduce();
-        // println!("add reduced: {}", reduced);
-        reduced
+        Self::pair(self, rhs).reduce()
     }
 }
 
@@ -182,8 +164,6 @@ impl std::ops::Add for &SnailNumber {
 
 impl std::ops::AddAssign for SnailNumber {
     fn add_assign(&mut self, rhs: Self) {
-        // println!("self: {}", self);
-        // println!("rhs: {}", rhs);
         let mut tmp = Self::pair(Simple(0), rhs);
         std::mem::swap(self, &mut tmp);
         match self {
@@ -192,11 +172,9 @@ impl std::ops::AddAssign for SnailNumber {
             }
             _ => unreachable!(),
         }
-        // println!("add_assigned: {}", self);
         std::mem::swap(self, &mut tmp);
         tmp = tmp.reduce();
         std::mem::swap(self, &mut tmp);
-        // println!("add_assigned reduced: {}", self);
     }
 }
 
@@ -206,17 +184,6 @@ pub fn solve(lines: &[String]) -> Solution {
         .filter(|l| !l.is_empty())
         .map(|l| l.parse().unwrap())
         .collect();
-    // for num in &nums {
-    // println!("{}", &num);
-    // }
-
-    // println!(
-    //     "{}",
-    //     "[[[[4,3],4],4],[7,[[8,4],9]]]"
-    //         .parse::<SnailNumber>()
-    //         .unwrap()
-    //         + "[1,1]".parse().unwrap()
-    // );
 
     let sol_a = nums
         .iter()
