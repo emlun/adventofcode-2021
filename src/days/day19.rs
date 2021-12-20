@@ -344,10 +344,15 @@ fn find_overlap(scana: &Scanner, scanb: &Scanner) -> Option<(Vec3<i64>, Scanner)
         for origin_a in &scana.beacons {
             for origin_b in &brot.beacons {
                 let pos = origin_a - origin_b;
-                let trans_b = brot.translate(&pos);
-                let trans_b: HashSet<&Vec3<i64>> = trans_b.beacons.iter().collect();
-
-                if beac_a.intersection(&trans_b).take(12).count() == 12 {
+                if brot
+                    .translate(&pos)
+                    .beacons
+                    .into_iter()
+                    .filter(|b| beac_a.contains(b))
+                    .take(12)
+                    .count()
+                    == 12
+                {
                     return Some((pos, brot));
                 }
             }
