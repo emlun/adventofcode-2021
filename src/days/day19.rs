@@ -3,7 +3,6 @@ use std::collections::HashSet;
 use std::fmt::Display;
 use std::ops::Add;
 use std::ops::Mul;
-use std::ops::Neg;
 use std::ops::Sub;
 
 #[derive(Clone, Debug)]
@@ -70,7 +69,7 @@ impl Angle {
     }
 }
 
-#[derive(Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq)]
 struct Vec3<T> {
     x: T,
     y: T,
@@ -107,43 +106,6 @@ where
     }
 }
 
-impl<'lhs, 'rhs, T> Add<Self> for Vec3<T>
-where
-    T: Copy,
-    T: Add<T, Output = T>,
-{
-    type Output = Self;
-    fn add(self, other: Self) -> <Self as Add<Self>>::Output {
-        &self + &other
-    }
-}
-
-impl<T> Neg for &Vec3<T>
-where
-    T: Copy,
-    T: Neg<Output = T>,
-{
-    type Output = Vec3<T>;
-    fn neg(self) -> <Self as Neg>::Output {
-        Vec3 {
-            x: -self.x,
-            y: -self.y,
-            z: -self.z,
-        }
-    }
-}
-
-impl<T> Sub<Self> for Vec3<T>
-where
-    T: Copy,
-    T: Sub<T, Output = T>,
-{
-    type Output = Self;
-    fn sub(self, other: Self) -> <Self as Sub<Self>>::Output {
-        &self - &other
-    }
-}
-
 impl<T> Sub<Self> for &Vec3<T>
 where
     T: Copy,
@@ -156,18 +118,6 @@ where
             y: self.y - other.y,
             z: self.z - other.z,
         }
-    }
-}
-
-impl<T> Mul<&Vec3<T>> for &Vec3<T>
-where
-    T: Copy,
-    T: Add<T, Output = T>,
-    T: Mul<T, Output = T>,
-{
-    type Output = T;
-    fn mul(self, other: &Vec3<T>) -> T {
-        self.x * other.x + self.y * other.y + self.z * other.z
     }
 }
 
@@ -258,20 +208,6 @@ impl Matrix3<i64> {
             &Self::rotz(Deg180) * &Self::roty(Deg270),
             &Self::rotz(Deg270) * &Self::roty(Deg270),
         ]
-    }
-}
-
-impl<'m, 'v, T> Mul<&'v Vec3<T>> for &'m Matrix3<T>
-where
-    &'m Vec3<T>: Mul<&'v Vec3<T>, Output = T>,
-{
-    type Output = Vec3<T>;
-    fn mul(self, v: &'v Vec3<T>) -> <Self as Mul<&'v Vec3<T>>>::Output {
-        Vec3 {
-            x: &self.row1 * v,
-            y: &self.row2 * v,
-            z: &self.row3 * v,
-        }
     }
 }
 
