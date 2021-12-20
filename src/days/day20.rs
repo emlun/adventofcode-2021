@@ -52,9 +52,7 @@ fn enhance(alg: &[usize], img: Image) -> Image {
                     .collect()
             })
             .collect(),
-        infinity: alg[std::iter::repeat(img.infinity)
-            .take(9)
-            .fold(0, |acc, a| (acc << 1) | a)],
+        infinity: alg[if img.infinity == 1 { 511 } else { 0 }],
     }
 }
 
