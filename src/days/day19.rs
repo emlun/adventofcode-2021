@@ -344,16 +344,16 @@ fn find_overlap(scana: &Scanner, scanb: &Scanner) -> Option<(Vec3<i64>, Scanner)
         for origin_a in &scana.beacons {
             for origin_b in &brot.beacons {
                 let pos = origin_a - origin_b;
-                if brot
-                    .translate(&pos)
+                let btrans = brot.translate(&pos);
+                if btrans
                     .beacons
-                    .into_iter()
+                    .iter()
                     .filter(|b| beac_a.contains(b))
                     .take(12)
                     .count()
                     == 12
                 {
-                    return Some((pos, brot));
+                    return Some((pos, btrans));
                 }
             }
         }
@@ -390,11 +390,10 @@ pub fn solve(lines: &[String]) -> Solution {
             if known[i].is_some() {
                 for j in 0..scanners.len() {
                     if known[j].is_none() {
-                        if let Some((posb, rotated_b)) =
+                        if let Some((posb, absolute_b)) =
                             find_overlap(&known[i].as_ref().unwrap().1, &scanners[j])
                         {
-                            let rot_trans = rotated_b.translate(&posb);
-                            known[j] = Some((posb, rot_trans));
+                            known[j] = Some((posb, absolute_b));
                         }
                     }
                 }
