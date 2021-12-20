@@ -78,11 +78,17 @@ pub fn solve(lines: &[String]) -> Solution {
 
     let sol_a = enhanced2
         .pixels
+        .iter()
+        .flat_map(|row| row.iter())
+        .filter(|i| **i != 0)
+        .count();
+    let sol_b = (2..50)
+        .fold(enhanced2, |img, _| enhance(&alg, expand(img)))
+        .pixels
         .into_iter()
         .flat_map(|row| row.into_iter())
         .filter(|i| *i != 0)
         .count();
-    let sol_b = 0;
 
     (sol_a.to_string(), sol_b.to_string())
 }
