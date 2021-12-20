@@ -77,6 +77,12 @@ struct Vec3<T> {
     z: T,
 }
 
+impl Vec3<i64> {
+    fn abs(&self) -> i64 {
+        self.x.abs() + self.y.abs() + self.z.abs()
+    }
+}
+
 impl<T> Display for Vec3<T>
 where
     T: Display,
@@ -374,8 +380,8 @@ pub fn solve(lines: &[String]) -> Solution {
         .map(Scanner::new)
         .collect();
 
-    let mut known: Vec<Option<Scanner>> = vec![None; scanners.len()];
-    known[0] = Some(scanners[0].clone());
+    let mut known: Vec<Option<(Vec3<i64>, Scanner)>> = vec![None; scanners.len()];
+    known[0] = Some((Vec3 { x: 0, y: 0, z: 0 }, scanners[0].clone()));
 
     while known.iter().any(|k| k.is_none()) {
         for i in 0..scanners.len() {
@@ -383,9 +389,10 @@ pub fn solve(lines: &[String]) -> Solution {
                 for j in 0..scanners.len() {
                     if known[j].is_none() {
                         if let Some((posb, rotated_b)) =
-                            find_overlap(known[i].as_ref().unwrap(), &scanners[j])
+                            find_overlap(&known[i].as_ref().unwrap().1, &scanners[j])
                         {
-                            known[j] = Some(rotated_b.translate(&posb));
+                            let rot_trans = rotated_b.translate(&posb);
+                            known[j] = Some((posb, rot_trans));
                         }
                     }
                 }
@@ -393,12 +400,23 @@ pub fn solve(lines: &[String]) -> Solution {
         }
     }
 
+    let sol_b = (0..scanners.len())
+        .flat_map(|i| ((i + 1)..scanners.len()).map(move |j| (i, j)))
+        .map(|(i, j)| (&known[i].as_ref().unwrap().0 - &known[j].as_ref().unwrap().0).abs())
+        .max()
+        .unwrap();
+
     let sol_a = known
         .into_iter()
-        .flat_map(|scan| scan.unwrap().beacons.into_iter())
+        .flat_map(|k| {
+            if let Some((_, scan)) = k {
+                scan.beacons.into_iter()
+            } else {
+                unreachable!()
+            }
+        })
         .collect::<HashSet<Vec3<i64>>>()
         .len();
-    let sol_b = 0;
 
     (sol_a.to_string(), sol_b.to_string())
 }
