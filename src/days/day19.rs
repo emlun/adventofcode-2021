@@ -349,8 +349,6 @@ fn find_overlap(scana: &Scanner, scanb: &Scanner) -> Option<(Vec3<i64>, Scanner)
 
                 let overlap: HashSet<&Vec3<i64>> = trans_a.intersection(&trans_b).collect();
                 if overlap.len() >= 12 {
-                    let overlap_from_a: Vec<Vec3<i64>> =
-                        overlap.iter().map(|b| *b + origin_a).collect();
                     return Some((origin_a - origin_b, brot));
                 }
             }
