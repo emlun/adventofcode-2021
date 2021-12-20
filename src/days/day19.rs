@@ -337,18 +337,18 @@ where
 }
 
 fn find_overlap(scana: &Scanner, scanb: &Scanner) -> Option<(Vec3<i64>, Scanner)> {
+    let beac_a: HashSet<&Vec3<i64>> = scana.beacons.iter().collect();
+
     Matrix3::all_rotations().into_iter().find_map(|rot| {
         let brot = scanb.rotate(&rot);
         for origin_a in &scana.beacons {
-            let trans_a: HashSet<Vec3<i64>> =
-                scana.translate(&-origin_a).beacons.into_iter().collect();
-
             for origin_b in &brot.beacons {
-                let trans_b: HashSet<Vec3<i64>> =
-                    brot.translate(&-origin_b).beacons.into_iter().collect();
+                let pos = origin_a - origin_b;
+                let trans_b = brot.translate(&pos);
+                let trans_b: HashSet<&Vec3<i64>> = trans_b.beacons.iter().collect();
 
-                if trans_a.intersection(&trans_b).take(12).count() == 12 {
-                    return Some((origin_a - origin_b, brot));
+                if beac_a.intersection(&trans_b).take(12).count() == 12 {
+                    return Some((pos, brot));
                 }
             }
         }
