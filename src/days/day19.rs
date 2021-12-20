@@ -273,8 +273,6 @@ where
 }
 
 fn find_overlap(scana: &Scanner, scanb: &Scanner) -> Option<(Vec3<i64>, Scanner)> {
-    let beac_a: HashSet<&Vec3<i64>> = scana.beacons.iter().collect();
-
     Matrix3::all_rotations().into_iter().find_map(|rot| {
         let brot = scanb.rotate(&rot);
         for origin_a in &scana.beacons {
@@ -284,7 +282,7 @@ fn find_overlap(scana: &Scanner, scanb: &Scanner) -> Option<(Vec3<i64>, Scanner)
                 if btrans
                     .beacons
                     .iter()
-                    .filter(|b| beac_a.contains(b))
+                    .filter(|b| scana.beacons.contains(b))
                     .take(12)
                     .count()
                     == 12
