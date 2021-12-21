@@ -54,6 +54,12 @@ struct Vec3<T> {
     z: T,
 }
 
+impl<T> Vec3<T> {
+    const fn new(x: T, y: T, z: T) -> Self {
+        Self { x, y, z }
+    }
+}
+
 impl Vec3<i64> {
     fn abs(&self) -> i64 {
         self.x.abs() + self.y.abs() + self.z.abs()
@@ -76,11 +82,7 @@ where
 {
     type Output = Vec3<T>;
     fn add(self, other: &Vec3<T>) -> <Self as Add<&Vec3<T>>>::Output {
-        Vec3 {
-            x: self.x + other.x,
-            y: self.y + other.y,
-            z: self.z + other.z,
-        }
+        Vec3::new(self.x + other.x, self.y + other.y, self.z + other.z)
     }
 }
 
@@ -91,11 +93,7 @@ where
 {
     type Output = Vec3<T>;
     fn sub(self, other: Self) -> <Self as Sub<Self>>::Output {
-        Vec3 {
-            x: self.x - other.x,
-            y: self.y - other.y,
-            z: self.z - other.z,
-        }
+        Vec3::new(self.x - other.x, self.y - other.y, self.z - other.z)
     }
 }
 
@@ -111,49 +109,25 @@ impl Matrix3<i64> {
 
     const fn rotx(Angle(sin, cos): Angle) -> Self {
         Self {
-            col1: Vec3 { x: 1, y: 0, z: 0 },
-            col2: Vec3 {
-                x: 0,
-                y: cos,
-                z: sin,
-            },
-            col3: Vec3 {
-                x: 0,
-                y: -sin,
-                z: cos,
-            },
+            col1: Vec3::new(1, 0, 0),
+            col2: Vec3::new(0, cos, sin),
+            col3: Vec3::new(0, -sin, cos),
         }
     }
 
     const fn roty(Angle(sin, cos): Angle) -> Self {
         Self {
-            col1: Vec3 {
-                x: cos,
-                y: 0,
-                z: -sin,
-            },
-            col2: Vec3 { x: 0, y: 1, z: 0 },
-            col3: Vec3 {
-                x: sin,
-                y: 0,
-                z: cos,
-            },
+            col1: Vec3::new(cos, 0, -sin),
+            col2: Vec3::new(0, 1, 0),
+            col3: Vec3::new(sin, 0, cos),
         }
     }
 
     const fn rotz(Angle(sin, cos): Angle) -> Self {
         Self {
-            col1: Vec3 {
-                x: cos,
-                y: sin,
-                z: 0,
-            },
-            col2: Vec3 {
-                x: -sin,
-                y: cos,
-                z: 0,
-            },
-            col3: Vec3 { x: 0, y: 0, z: 1 },
+            col1: Vec3::new(cos, sin, 0),
+            col2: Vec3::new(-sin, cos, 0),
+            col3: Vec3::new(0, 0, 1),
         }
     }
 
@@ -193,11 +167,11 @@ impl Matrix3<i64> {
     }
 
     const fn vector_mul(&self, v: Vec3<i64>) -> Vec3<i64> {
-        Vec3 {
-            x: self.col1.x * v.x + self.col2.x * v.y + self.col3.x * v.z,
-            y: self.col1.y * v.x + self.col2.y * v.y + self.col3.y * v.z,
-            z: self.col1.z * v.x + self.col2.z * v.y + self.col3.z * v.z,
-        }
+        Vec3::new(
+            self.col1.x * v.x + self.col2.x * v.y + self.col3.x * v.z,
+            self.col1.y * v.x + self.col2.y * v.y + self.col3.y * v.z,
+            self.col1.z * v.x + self.col2.z * v.y + self.col3.z * v.z,
+        )
     }
 }
 
@@ -209,11 +183,11 @@ where
 {
     type Output = Vec3<T>;
     fn mul(self, v: &'v Vec3<T>) -> <Self as Mul<&'v Vec3<T>>>::Output {
-        Vec3 {
-            x: self.col1.x * v.x + self.col2.x * v.y + self.col3.x * v.z,
-            y: self.col1.y * v.x + self.col2.y * v.y + self.col3.y * v.z,
-            z: self.col1.z * v.x + self.col2.z * v.y + self.col3.z * v.z,
-        }
+        Vec3::new(
+            self.col1.x * v.x + self.col2.x * v.y + self.col3.x * v.z,
+            self.col1.y * v.x + self.col2.y * v.y + self.col3.y * v.z,
+            self.col1.z * v.x + self.col2.z * v.y + self.col3.z * v.z,
+        )
     }
 }
 
@@ -262,7 +236,7 @@ pub fn solve(lines: &[String]) -> Solution {
         .collect();
 
     let mut known: Vec<Option<(Vec3<i64>, Scanner)>> = vec![None; scanners.len()];
-    known[0] = Some((Vec3 { x: 0, y: 0, z: 0 }, scanners[0].clone()));
+    known[0] = Some((Vec3::new(0, 0, 0), scanners[0].clone()));
     let mut futile: HashSet<(usize, usize)> = HashSet::new();
 
     while known.iter().any(|k| k.is_none()) {
