@@ -77,7 +77,7 @@ fn solve_a(mut player1: u32, mut player2: u32) -> u32 {
     let mut score1: u32 = 0;
     let mut score2: u32 = 0;
 
-    let mut die = std::iter::repeat(1..=100).flatten();
+    let mut die = (1..=100).cycle();
     let mut rolls = 0;
 
     let loser = loop {
