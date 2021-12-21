@@ -278,15 +278,15 @@ fn find_overlap(scana: &Scanner, scanb: &Scanner) -> Option<(Vec3<i64>, Scanner)
         for origin_a in &scana.beacons {
             for origin_b in &brot.beacons {
                 let pos = origin_a - origin_b;
-                let btrans = brot.translate(&pos);
-                if btrans
+                if brot
                     .beacons
                     .iter()
-                    .filter(|b| scana.beacons.contains(b))
+                    .filter(|b| scana.beacons.contains(&(*b + &pos)))
                     .take(3)
                     .count()
                     == 3
                 {
+                    let btrans = brot.translate(&pos);
                     return Some((pos, btrans));
                 }
             }
