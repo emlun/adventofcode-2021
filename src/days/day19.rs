@@ -38,35 +38,13 @@ impl Display for Scanner {
     }
 }
 
-enum Angle {
-    Deg0,
-    Deg90,
-    Deg180,
-    Deg270,
-}
-use Angle::Deg0;
-use Angle::Deg180;
-use Angle::Deg270;
-use Angle::Deg90;
+struct Angle(i64, i64);
 
 impl Angle {
-    const fn sin(&self) -> i64 {
-        match self {
-            Self::Deg0 => 0,
-            Self::Deg90 => 1,
-            Self::Deg180 => 0,
-            Self::Deg270 => -1,
-        }
-    }
-
-    const fn cos(&self) -> i64 {
-        match self {
-            Self::Deg0 => 1,
-            Self::Deg90 => 0,
-            Self::Deg180 => -1,
-            Self::Deg270 => 0,
-        }
-    }
+    const DEG_0: Self = Self(0, 1);
+    const DEG_90: Self = Self(1, 0);
+    const DEG_180: Self = Self(0, -1);
+    const DEG_270: Self = Self(-1, 0);
 }
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
@@ -129,50 +107,50 @@ struct Matrix3<T> {
 }
 
 impl Matrix3<i64> {
-    const ID: Self = Self::rotx(Deg0);
+    const ID: Self = Self::rotx(Angle::DEG_0);
 
-    const fn rotx(angle: Angle) -> Self {
+    const fn rotx(Angle(sin, cos): Angle) -> Self {
         Self {
             col1: Vec3 { x: 1, y: 0, z: 0 },
             col2: Vec3 {
                 x: 0,
-                y: angle.cos(),
-                z: angle.sin(),
+                y: cos,
+                z: sin,
             },
             col3: Vec3 {
                 x: 0,
-                y: -angle.sin(),
-                z: angle.cos(),
+                y: -sin,
+                z: cos,
             },
         }
     }
 
-    const fn roty(angle: Angle) -> Self {
+    const fn roty(Angle(sin, cos): Angle) -> Self {
         Self {
             col1: Vec3 {
-                x: angle.cos(),
+                x: cos,
                 y: 0,
-                z: -angle.sin(),
+                z: -sin,
             },
             col2: Vec3 { x: 0, y: 1, z: 0 },
             col3: Vec3 {
-                x: angle.sin(),
+                x: sin,
                 y: 0,
-                z: angle.cos(),
+                z: cos,
             },
         }
     }
 
-    const fn rotz(angle: Angle) -> Self {
+    const fn rotz(Angle(sin, cos): Angle) -> Self {
         Self {
             col1: Vec3 {
-                x: angle.cos(),
-                y: angle.sin(),
+                x: cos,
+                y: sin,
                 z: 0,
             },
             col2: Vec3 {
-                x: -angle.sin(),
-                y: angle.cos(),
+                x: -sin,
+                y: cos,
                 z: 0,
             },
             col3: Vec3 { x: 0, y: 0, z: 1 },
@@ -181,29 +159,29 @@ impl Matrix3<i64> {
 
     const ALL_ROTATIONS: [Self; 24] = [
         Self::ID,
-        Self::rotx(Deg90),
-        Self::rotx(Deg180),
-        Self::rotx(Deg270),
-        Self::rotz(Deg90).matrix_mul(Self::ID),
-        Self::rotz(Deg90).matrix_mul(Self::rotx(Deg90)),
-        Self::rotz(Deg90).matrix_mul(Self::rotx(Deg180)),
-        Self::rotz(Deg90).matrix_mul(Self::rotx(Deg270)),
-        Self::rotz(Deg180).matrix_mul(Self::ID),
-        Self::rotz(Deg180).matrix_mul(Self::rotx(Deg90)),
-        Self::rotz(Deg180).matrix_mul(Self::rotx(Deg180)),
-        Self::rotz(Deg180).matrix_mul(Self::rotx(Deg270)),
-        Self::rotz(Deg270).matrix_mul(Self::ID),
-        Self::rotz(Deg270).matrix_mul(Self::rotx(Deg90)),
-        Self::rotz(Deg270).matrix_mul(Self::rotx(Deg180)),
-        Self::rotz(Deg270).matrix_mul(Self::rotx(Deg270)),
-        Self::roty(Deg90),
-        Self::rotz(Deg90).matrix_mul(Self::roty(Deg90)),
-        Self::rotz(Deg180).matrix_mul(Self::roty(Deg90)),
-        Self::rotz(Deg270).matrix_mul(Self::roty(Deg90)),
-        Self::roty(Deg270),
-        Self::rotz(Deg90).matrix_mul(Self::roty(Deg270)),
-        Self::rotz(Deg180).matrix_mul(Self::roty(Deg270)),
-        Self::rotz(Deg270).matrix_mul(Self::roty(Deg270)),
+        Self::rotx(Angle::DEG_90),
+        Self::rotx(Angle::DEG_180),
+        Self::rotx(Angle::DEG_270),
+        Self::rotz(Angle::DEG_90).matrix_mul(Self::ID),
+        Self::rotz(Angle::DEG_90).matrix_mul(Self::rotx(Angle::DEG_90)),
+        Self::rotz(Angle::DEG_90).matrix_mul(Self::rotx(Angle::DEG_180)),
+        Self::rotz(Angle::DEG_90).matrix_mul(Self::rotx(Angle::DEG_270)),
+        Self::rotz(Angle::DEG_180).matrix_mul(Self::ID),
+        Self::rotz(Angle::DEG_180).matrix_mul(Self::rotx(Angle::DEG_90)),
+        Self::rotz(Angle::DEG_180).matrix_mul(Self::rotx(Angle::DEG_180)),
+        Self::rotz(Angle::DEG_180).matrix_mul(Self::rotx(Angle::DEG_270)),
+        Self::rotz(Angle::DEG_270).matrix_mul(Self::ID),
+        Self::rotz(Angle::DEG_270).matrix_mul(Self::rotx(Angle::DEG_90)),
+        Self::rotz(Angle::DEG_270).matrix_mul(Self::rotx(Angle::DEG_180)),
+        Self::rotz(Angle::DEG_270).matrix_mul(Self::rotx(Angle::DEG_270)),
+        Self::roty(Angle::DEG_90),
+        Self::rotz(Angle::DEG_90).matrix_mul(Self::roty(Angle::DEG_90)),
+        Self::rotz(Angle::DEG_180).matrix_mul(Self::roty(Angle::DEG_90)),
+        Self::rotz(Angle::DEG_270).matrix_mul(Self::roty(Angle::DEG_90)),
+        Self::roty(Angle::DEG_270),
+        Self::rotz(Angle::DEG_90).matrix_mul(Self::roty(Angle::DEG_270)),
+        Self::rotz(Angle::DEG_180).matrix_mul(Self::roty(Angle::DEG_270)),
+        Self::rotz(Angle::DEG_270).matrix_mul(Self::roty(Angle::DEG_270)),
     ];
 
     const fn matrix_mul(self, other: Self) -> Self {
