@@ -129,9 +129,7 @@ struct Matrix3<T> {
 }
 
 impl Matrix3<i64> {
-    const fn id() -> Self {
-        Self::rotx(Deg0)
-    }
+    const ID: Self = Self::rotx(Deg0);
 
     const fn rotx(angle: Angle) -> Self {
         Self {
@@ -182,19 +180,19 @@ impl Matrix3<i64> {
     }
 
     const ALL_ROTATIONS: [Self; 24] = [
-        Self::id(),
+        Self::ID,
         Self::rotx(Deg90),
         Self::rotx(Deg180),
         Self::rotx(Deg270),
-        Self::rotz(Deg90).matrix_mul(Self::id()),
+        Self::rotz(Deg90).matrix_mul(Self::ID),
         Self::rotz(Deg90).matrix_mul(Self::rotx(Deg90)),
         Self::rotz(Deg90).matrix_mul(Self::rotx(Deg180)),
         Self::rotz(Deg90).matrix_mul(Self::rotx(Deg270)),
-        Self::rotz(Deg180).matrix_mul(Self::id()),
+        Self::rotz(Deg180).matrix_mul(Self::ID),
         Self::rotz(Deg180).matrix_mul(Self::rotx(Deg90)),
         Self::rotz(Deg180).matrix_mul(Self::rotx(Deg180)),
         Self::rotz(Deg180).matrix_mul(Self::rotx(Deg270)),
-        Self::rotz(Deg270).matrix_mul(Self::id()),
+        Self::rotz(Deg270).matrix_mul(Self::ID),
         Self::rotz(Deg270).matrix_mul(Self::rotx(Deg90)),
         Self::rotz(Deg270).matrix_mul(Self::rotx(Deg180)),
         Self::rotz(Deg270).matrix_mul(Self::rotx(Deg270)),
