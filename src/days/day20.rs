@@ -34,6 +34,7 @@ fn expand(mut img: Image) -> Image {
 }
 
 fn enhance(alg: &[usize], img: Image) -> Image {
+    let img = expand(img);
     Image {
         pixels: (1..(img.pixels.len() - 1))
             .map(|i_row| {
@@ -71,8 +72,8 @@ pub fn solve(lines: &[String]) -> Solution {
         infinity: 0,
     };
 
-    let enhanced = enhance(&alg, expand(img));
-    let enhanced2 = enhance(&alg, expand(enhanced));
+    let enhanced = enhance(&alg, img);
+    let enhanced2 = enhance(&alg, enhanced);
 
     let sol_a = enhanced2
         .pixels
@@ -81,7 +82,7 @@ pub fn solve(lines: &[String]) -> Solution {
         .filter(|i| **i != 0)
         .count();
     let sol_b = (2..50)
-        .fold(enhanced2, |img, _| enhance(&alg, expand(img)))
+        .fold(enhanced2, |img, _| enhance(&alg, img))
         .pixels
         .into_iter()
         .flat_map(|row| row.into_iter())
