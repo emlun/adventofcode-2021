@@ -187,26 +187,26 @@ impl Matrix3<i64> {
             Self::rotx(Deg90),
             Self::rotx(Deg180),
             Self::rotx(Deg270),
-            &Self::rotz(Deg90) * &Self::id(),
-            &Self::rotz(Deg90) * &Self::rotx(Deg90),
-            &Self::rotz(Deg90) * &Self::rotx(Deg180),
-            &Self::rotz(Deg90) * &Self::rotx(Deg270),
-            &Self::rotz(Deg180) * &Self::id(),
-            &Self::rotz(Deg180) * &Self::rotx(Deg90),
-            &Self::rotz(Deg180) * &Self::rotx(Deg180),
-            &Self::rotz(Deg180) * &Self::rotx(Deg270),
-            &Self::rotz(Deg270) * &Self::id(),
-            &Self::rotz(Deg270) * &Self::rotx(Deg90),
-            &Self::rotz(Deg270) * &Self::rotx(Deg180),
-            &Self::rotz(Deg270) * &Self::rotx(Deg270),
+            &Self::rotz(Deg90) * Self::id(),
+            &Self::rotz(Deg90) * Self::rotx(Deg90),
+            &Self::rotz(Deg90) * Self::rotx(Deg180),
+            &Self::rotz(Deg90) * Self::rotx(Deg270),
+            &Self::rotz(Deg180) * Self::id(),
+            &Self::rotz(Deg180) * Self::rotx(Deg90),
+            &Self::rotz(Deg180) * Self::rotx(Deg180),
+            &Self::rotz(Deg180) * Self::rotx(Deg270),
+            &Self::rotz(Deg270) * Self::id(),
+            &Self::rotz(Deg270) * Self::rotx(Deg90),
+            &Self::rotz(Deg270) * Self::rotx(Deg180),
+            &Self::rotz(Deg270) * Self::rotx(Deg270),
             Self::roty(Deg90),
-            &Self::rotz(Deg90) * &Self::roty(Deg90),
-            &Self::rotz(Deg180) * &Self::roty(Deg90),
-            &Self::rotz(Deg270) * &Self::roty(Deg90),
+            &Self::rotz(Deg90) * Self::roty(Deg90),
+            &Self::rotz(Deg180) * Self::roty(Deg90),
+            &Self::rotz(Deg270) * Self::roty(Deg90),
             Self::roty(Deg270),
-            &Self::rotz(Deg90) * &Self::roty(Deg270),
-            &Self::rotz(Deg180) * &Self::roty(Deg270),
-            &Self::rotz(Deg270) * &Self::roty(Deg270),
+            &Self::rotz(Deg90) * Self::roty(Deg270),
+            &Self::rotz(Deg180) * Self::roty(Deg270),
+            &Self::rotz(Deg270) * Self::roty(Deg270),
         ]
     }
 }
@@ -227,17 +227,34 @@ where
     }
 }
 
-impl<'lhs, 'rhs, T> Mul<&'rhs Matrix3<T>> for &'lhs Matrix3<T>
+impl<'m, T> Mul<Vec3<T>> for &'m Matrix3<T>
 where
     T: Copy,
-    Self: Mul<&'rhs Vec3<T>, Output = Vec3<T>>,
+    T: Add<T, Output = T>,
+    T: Mul<T, Output = T>,
+{
+    type Output = Vec3<T>;
+    fn mul(self, v: Vec3<T>) -> <Self as Mul<Vec3<T>>>::Output {
+        Vec3 {
+            x: self.col1.x * v.x + self.col2.x * v.y + self.col3.x * v.z,
+            y: self.col1.y * v.x + self.col2.y * v.y + self.col3.y * v.z,
+            z: self.col1.z * v.x + self.col2.z * v.y + self.col3.z * v.z,
+        }
+    }
+}
+
+impl<'slf, T> Mul<Matrix3<T>> for &'slf Matrix3<T>
+where
+    T: Copy,
+    T: 'slf,
+    Self: Mul<Vec3<T>, Output = Vec3<T>>,
 {
     type Output = Matrix3<T>;
-    fn mul(self, other: &'rhs Matrix3<T>) -> <Self as Mul<&'rhs Matrix3<T>>>::Output {
+    fn mul(self, other: Matrix3<T>) -> <Self as Mul<Matrix3<T>>>::Output {
         Matrix3 {
-            col1: self * &other.col1,
-            col2: self * &other.col2,
-            col3: self * &other.col3,
+            col1: self * other.col1,
+            col2: self * other.col2,
+            col3: self * other.col3,
         }
     }
 }
