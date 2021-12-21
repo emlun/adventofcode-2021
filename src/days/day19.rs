@@ -23,7 +23,7 @@ impl Scanner {
 
     fn rotate(&self, rot: &Matrix3<i64>) -> Self {
         Self {
-            beacons: self.beacons.iter().cloned().map(|v| rot * v).collect(),
+            beacons: self.beacons.iter().map(|v| rot * v).collect(),
         }
     }
 }
@@ -123,9 +123,9 @@ where
 
 #[derive(Clone)]
 struct Matrix3<T> {
-    row1: Vec3<T>,
-    row2: Vec3<T>,
-    row3: Vec3<T>,
+    col1: Vec3<T>,
+    col2: Vec3<T>,
+    col3: Vec3<T>,
 }
 
 impl Matrix3<i64> {
@@ -135,15 +135,15 @@ impl Matrix3<i64> {
 
     const fn rotx(angle: Angle) -> Self {
         Self {
-            row1: Vec3 { x: 1, y: 0, z: 0 },
-            row2: Vec3 {
+            col1: Vec3 { x: 1, y: 0, z: 0 },
+            col2: Vec3 {
                 x: 0,
                 y: angle.cos(),
-                z: -angle.sin(),
+                z: angle.sin(),
             },
-            row3: Vec3 {
+            col3: Vec3 {
                 x: 0,
-                y: angle.sin(),
+                y: -angle.sin(),
                 z: angle.cos(),
             },
         }
@@ -151,14 +151,14 @@ impl Matrix3<i64> {
 
     const fn roty(angle: Angle) -> Self {
         Self {
-            row1: Vec3 {
+            col1: Vec3 {
                 x: angle.cos(),
                 y: 0,
-                z: angle.sin(),
+                z: -angle.sin(),
             },
-            row2: Vec3 { x: 0, y: 1, z: 0 },
-            row3: Vec3 {
-                x: -angle.sin(),
+            col2: Vec3 { x: 0, y: 1, z: 0 },
+            col3: Vec3 {
+                x: angle.sin(),
                 y: 0,
                 z: angle.cos(),
             },
@@ -167,17 +167,17 @@ impl Matrix3<i64> {
 
     const fn rotz(angle: Angle) -> Self {
         Self {
-            row1: Vec3 {
+            col1: Vec3 {
                 x: angle.cos(),
-                y: -angle.sin(),
+                y: angle.sin(),
                 z: 0,
             },
-            row2: Vec3 {
-                x: angle.sin(),
+            col2: Vec3 {
+                x: -angle.sin(),
                 y: angle.cos(),
                 z: 0,
             },
-            row3: Vec3 { x: 0, y: 0, z: 1 },
+            col3: Vec3 { x: 0, y: 0, z: 1 },
         }
     }
 
@@ -211,18 +211,18 @@ impl Matrix3<i64> {
     }
 }
 
-impl<'m, T> Mul<Vec3<T>> for &'m Matrix3<T>
+impl<'m, 'v, T> Mul<&'v Vec3<T>> for &'m Matrix3<T>
 where
     T: Copy,
     T: Add<T, Output = T>,
     T: Mul<T, Output = T>,
 {
     type Output = Vec3<T>;
-    fn mul(self, v: Vec3<T>) -> <Self as Mul<Vec3<T>>>::Output {
+    fn mul(self, v: &'v Vec3<T>) -> <Self as Mul<&'v Vec3<T>>>::Output {
         Vec3 {
-            x: self.row1.x * v.x + self.row1.y * v.y + self.row1.z * v.z,
-            y: self.row2.x * v.x + self.row2.y * v.y + self.row2.z * v.z,
-            z: self.row3.x * v.x + self.row3.y * v.y + self.row3.z * v.z,
+            x: self.col1.x * v.x + self.col2.x * v.y + self.col3.x * v.z,
+            y: self.col1.y * v.x + self.col2.y * v.y + self.col3.y * v.z,
+            z: self.col1.z * v.x + self.col2.z * v.y + self.col3.z * v.z,
         }
     }
 }
@@ -230,44 +230,14 @@ where
 impl<'lhs, 'rhs, T> Mul<&'rhs Matrix3<T>> for &'lhs Matrix3<T>
 where
     T: Copy,
-    Self: Mul<Vec3<T>, Output = Vec3<T>>,
+    Self: Mul<&'rhs Vec3<T>, Output = Vec3<T>>,
 {
     type Output = Matrix3<T>;
     fn mul(self, other: &'rhs Matrix3<T>) -> <Self as Mul<&'rhs Matrix3<T>>>::Output {
-        let col1 = Vec3 {
-            x: other.row1.x,
-            y: other.row2.x,
-            z: other.row3.x,
-        };
-        let col2 = Vec3 {
-            x: other.row1.y,
-            y: other.row2.y,
-            z: other.row3.y,
-        };
-        let col3 = Vec3 {
-            x: other.row1.z,
-            y: other.row2.z,
-            z: other.row3.z,
-        };
-        let ocol1 = self * col1;
-        let ocol2 = self * col2;
-        let ocol3 = self * col3;
         Matrix3 {
-            row1: Vec3 {
-                x: ocol1.x,
-                y: ocol2.x,
-                z: ocol3.x,
-            },
-            row2: Vec3 {
-                x: ocol1.y,
-                y: ocol2.y,
-                z: ocol3.y,
-            },
-            row3: Vec3 {
-                x: ocol1.z,
-                y: ocol2.z,
-                z: ocol3.z,
-            },
+            col1: self * &other.col1,
+            col2: self * &other.col2,
+            col3: self * &other.col3,
         }
     }
 }
