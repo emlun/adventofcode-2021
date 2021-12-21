@@ -38,15 +38,14 @@ fn play_multiverse_turn(universes: HashMap<Universe, u64>) -> HashMap<Universe, 
 }
 
 fn simulate_multiverse(start_pos: u32) -> (Vec<u64>, Vec<u64>) {
-    let mut universes: HashMap<Universe, u64> = vec![(
+    let mut universes: HashMap<Universe, u64> = HashMap::new();
+    universes.insert(
         Universe {
             pos: start_pos,
             score: 0,
         },
         1,
-    )]
-    .into_iter()
-    .collect();
+    );
 
     let mut won_universes_by_turn = vec![0];
     let mut not_won_universes_by_turn = vec![1];
