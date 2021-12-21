@@ -19,15 +19,14 @@ fn print_img(img: &Image) {
 
 fn expand(mut img: Image) -> Image {
     for row in &mut img.pixels {
-        row.insert(0, img.infinity);
-        row.insert(0, img.infinity);
+        row.splice(0..0, std::iter::repeat(img.infinity).take(2));
         row.push(img.infinity);
         row.push(img.infinity);
     }
-    img.pixels
-        .insert(0, vec![img.infinity; img.pixels[0].len()]);
-    img.pixels
-        .insert(0, vec![img.infinity; img.pixels[0].len()]);
+    img.pixels.splice(
+        0..0,
+        std::iter::repeat(vec![img.infinity; img.pixels[0].len()]).take(2),
+    );
     img.pixels.push(vec![img.infinity; img.pixels[0].len()]);
     img.pixels.push(vec![img.infinity; img.pixels[0].len()]);
     img
