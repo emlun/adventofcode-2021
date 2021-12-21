@@ -283,9 +283,9 @@ fn find_overlap(scana: &Scanner, scanb: &Scanner) -> Option<(Vec3<i64>, Scanner)
                     .beacons
                     .iter()
                     .filter(|b| scana.beacons.contains(b))
-                    .take(12)
+                    .take(3)
                     .count()
-                    == 12
+                    == 3
                 {
                     return Some((pos, btrans));
                 }
