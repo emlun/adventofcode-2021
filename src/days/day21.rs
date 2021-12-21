@@ -54,20 +54,12 @@ fn simulate_multiverse(start_pos: u32) -> (Vec<u64>, Vec<u64>) {
     while !universes.is_empty() {
         universes = play_multiverse_turn(universes);
 
-        let total_universes = universes.values().sum::<u64>();
+        let total_universes: u64 = universes.values().sum();
+        universes.retain(|Universe { score, .. }, _| *score < 21);
+        let not_won_universes: u64 = universes.values().sum();
 
-        let mut won_universes = 0;
-        universes.retain(|Universe { score, .. }, weight| {
-            if *score >= 21 {
-                won_universes += *weight;
-                false
-            } else {
-                true
-            }
-        });
-
-        won_universes_by_turn.push(won_universes);
-        not_won_universes_by_turn.push(total_universes - won_universes);
+        won_universes_by_turn.push(total_universes - not_won_universes);
+        not_won_universes_by_turn.push(not_won_universes);
     }
 
     (won_universes_by_turn, not_won_universes_by_turn)
