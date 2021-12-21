@@ -181,33 +181,47 @@ impl Matrix3<i64> {
         }
     }
 
-    fn all_rotations() -> [Self; 24] {
-        [
-            Self::id(),
-            Self::rotx(Deg90),
-            Self::rotx(Deg180),
-            Self::rotx(Deg270),
-            &Self::rotz(Deg90) * Self::id(),
-            &Self::rotz(Deg90) * Self::rotx(Deg90),
-            &Self::rotz(Deg90) * Self::rotx(Deg180),
-            &Self::rotz(Deg90) * Self::rotx(Deg270),
-            &Self::rotz(Deg180) * Self::id(),
-            &Self::rotz(Deg180) * Self::rotx(Deg90),
-            &Self::rotz(Deg180) * Self::rotx(Deg180),
-            &Self::rotz(Deg180) * Self::rotx(Deg270),
-            &Self::rotz(Deg270) * Self::id(),
-            &Self::rotz(Deg270) * Self::rotx(Deg90),
-            &Self::rotz(Deg270) * Self::rotx(Deg180),
-            &Self::rotz(Deg270) * Self::rotx(Deg270),
-            Self::roty(Deg90),
-            &Self::rotz(Deg90) * Self::roty(Deg90),
-            &Self::rotz(Deg180) * Self::roty(Deg90),
-            &Self::rotz(Deg270) * Self::roty(Deg90),
-            Self::roty(Deg270),
-            &Self::rotz(Deg90) * Self::roty(Deg270),
-            &Self::rotz(Deg180) * Self::roty(Deg270),
-            &Self::rotz(Deg270) * Self::roty(Deg270),
-        ]
+    const ALL_ROTATIONS: [Self; 24] = [
+        Self::id(),
+        Self::rotx(Deg90),
+        Self::rotx(Deg180),
+        Self::rotx(Deg270),
+        Self::rotz(Deg90).matrix_mul(Self::id()),
+        Self::rotz(Deg90).matrix_mul(Self::rotx(Deg90)),
+        Self::rotz(Deg90).matrix_mul(Self::rotx(Deg180)),
+        Self::rotz(Deg90).matrix_mul(Self::rotx(Deg270)),
+        Self::rotz(Deg180).matrix_mul(Self::id()),
+        Self::rotz(Deg180).matrix_mul(Self::rotx(Deg90)),
+        Self::rotz(Deg180).matrix_mul(Self::rotx(Deg180)),
+        Self::rotz(Deg180).matrix_mul(Self::rotx(Deg270)),
+        Self::rotz(Deg270).matrix_mul(Self::id()),
+        Self::rotz(Deg270).matrix_mul(Self::rotx(Deg90)),
+        Self::rotz(Deg270).matrix_mul(Self::rotx(Deg180)),
+        Self::rotz(Deg270).matrix_mul(Self::rotx(Deg270)),
+        Self::roty(Deg90),
+        Self::rotz(Deg90).matrix_mul(Self::roty(Deg90)),
+        Self::rotz(Deg180).matrix_mul(Self::roty(Deg90)),
+        Self::rotz(Deg270).matrix_mul(Self::roty(Deg90)),
+        Self::roty(Deg270),
+        Self::rotz(Deg90).matrix_mul(Self::roty(Deg270)),
+        Self::rotz(Deg180).matrix_mul(Self::roty(Deg270)),
+        Self::rotz(Deg270).matrix_mul(Self::roty(Deg270)),
+    ];
+
+    const fn matrix_mul(self, other: Self) -> Self {
+        Matrix3 {
+            col1: self.vector_mul(other.col1),
+            col2: self.vector_mul(other.col2),
+            col3: self.vector_mul(other.col3),
+        }
+    }
+
+    const fn vector_mul(&self, v: Vec3<i64>) -> Vec3<i64> {
+        Vec3 {
+            x: self.col1.x * v.x + self.col2.x * v.y + self.col3.x * v.z,
+            y: self.col1.y * v.x + self.col2.y * v.y + self.col3.y * v.z,
+            z: self.col1.z * v.x + self.col2.z * v.y + self.col3.z * v.z,
+        }
     }
 }
 
@@ -227,40 +241,8 @@ where
     }
 }
 
-impl<'m, T> Mul<Vec3<T>> for &'m Matrix3<T>
-where
-    T: Copy,
-    T: Add<T, Output = T>,
-    T: Mul<T, Output = T>,
-{
-    type Output = Vec3<T>;
-    fn mul(self, v: Vec3<T>) -> <Self as Mul<Vec3<T>>>::Output {
-        Vec3 {
-            x: self.col1.x * v.x + self.col2.x * v.y + self.col3.x * v.z,
-            y: self.col1.y * v.x + self.col2.y * v.y + self.col3.y * v.z,
-            z: self.col1.z * v.x + self.col2.z * v.y + self.col3.z * v.z,
-        }
-    }
-}
-
-impl<'slf, T> Mul<Matrix3<T>> for &'slf Matrix3<T>
-where
-    T: Copy,
-    T: 'slf,
-    Self: Mul<Vec3<T>, Output = Vec3<T>>,
-{
-    type Output = Matrix3<T>;
-    fn mul(self, other: Matrix3<T>) -> <Self as Mul<Matrix3<T>>>::Output {
-        Matrix3 {
-            col1: self * other.col1,
-            col2: self * other.col2,
-            col3: self * other.col3,
-        }
-    }
-}
-
 fn find_overlap(scana: &Scanner, scanb: &Scanner) -> Option<(Vec3<i64>, Scanner)> {
-    Matrix3::all_rotations().into_iter().find_map(|rot| {
+    Matrix3::ALL_ROTATIONS.into_iter().find_map(|rot| {
         let brot = scanb.rotate(&rot);
         for origin_a in &scana.beacons {
             for origin_b in &brot.beacons {
