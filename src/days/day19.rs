@@ -15,9 +15,9 @@ impl Scanner {
         Self { beacons }
     }
 
-    fn translate(&self, dxyz: &Vec3<i64>) -> Self {
+    fn translate(self, dxyz: &Vec3<i64>) -> Self {
         Self {
-            beacons: self.beacons.iter().cloned().map(|b| &b + dxyz).collect(),
+            beacons: self.beacons.into_iter().map(|b| &b + dxyz).collect(),
         }
     }
 
