@@ -1,8 +1,8 @@
 use crate::common::Solution;
 
 struct Image {
-    pixels: Vec<Vec<usize>>,
-    infinity: usize,
+    pixels: Vec<Vec<u16>>,
+    infinity: u16,
 }
 
 #[allow(unused)]
@@ -32,7 +32,7 @@ fn expand(mut img: Image) -> Image {
     img
 }
 
-fn enhance(alg: &[usize], img: Image) -> Image {
+fn enhance(alg: &[u16], img: Image) -> Image {
     let img = expand(img);
     Image {
         pixels: (1..(img.pixels.len() - 1))
@@ -48,7 +48,7 @@ fn enhance(alg: &[usize], img: Image) -> Image {
                                 (addr << 1) | img.pixels[conv_row][conv_col]
                             })
                     })
-                    .map(|i| alg[i])
+                    .map(|i| alg[usize::from(i)])
                     .collect()
             })
             .collect(),
@@ -57,7 +57,7 @@ fn enhance(alg: &[usize], img: Image) -> Image {
 }
 
 pub fn solve(lines: &[String]) -> Solution {
-    let alg: Vec<usize> = lines[0]
+    let alg: Vec<u16> = lines[0]
         .chars()
         .map(|c| if c == '#' { 1 } else { 0 })
         .collect();
