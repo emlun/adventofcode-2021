@@ -318,16 +318,19 @@ pub fn solve(lines: &[String]) -> Solution {
 
     let mut known: Vec<Option<(Vec3<i64>, Scanner)>> = vec![None; scanners.len()];
     known[0] = Some((Vec3 { x: 0, y: 0, z: 0 }, scanners[0].clone()));
+    let mut futile: HashSet<(usize, usize)> = HashSet::new();
 
     while known.iter().any(|k| k.is_none()) {
         for i in 0..scanners.len() {
             if known[i].is_some() {
                 for j in 0..scanners.len() {
-                    if known[j].is_none() {
+                    if known[j].is_none() && !futile.contains(&(i, j)) {
                         if let Some((posb, absolute_b)) =
                             find_overlap(&known[i].as_ref().unwrap().1, &scanners[j])
                         {
                             known[j] = Some((posb, absolute_b));
+                        } else {
+                            futile.insert((i, j));
                         }
                     }
                 }
