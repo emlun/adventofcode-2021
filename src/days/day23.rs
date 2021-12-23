@@ -5,15 +5,6 @@ use std::collections::HashMap;
 
 type Point = (usize, usize);
 
-#[derive(Eq, PartialEq)]
-enum Tile {
-    Floor,
-    Destination(u32),
-    Wall,
-}
-
-use Tile::{Destination, Floor, Wall};
-
 #[derive(Clone, Debug, Eq, PartialEq)]
 struct Player {
     typ: u32,
@@ -23,6 +14,15 @@ struct Player {
 }
 
 impl Player {
+    fn new(typ: u32, pos: Point) -> Self {
+        Self {
+            typ,
+            pos,
+            cost: 10usize.pow(typ),
+            moves: 0,
+        }
+    }
+
     fn finished(&self) -> bool {
         let (x, y) = self.pos;
         y >= 2 && x == (self.typ as usize) * 2 + 3
@@ -36,7 +36,7 @@ impl Player {
         (self.typ as usize) * 2 + 3
     }
 
-    fn available_moves(&self, state: &State) -> Vec<(Point, usize)> {
+    fn available_moves(&self, state: &State, max_y: usize) -> Vec<(Point, usize)> {
         let mut moves: Vec<(Point, usize)> = Vec::new();
 
         let (x, y) = self.pos;
@@ -77,7 +77,7 @@ impl Player {
                 if destination_x > x {
                     if let Some(pos) = ((x + 1)..=destination_x)
                         .map(|nx| (nx, y))
-                        .chain((y..=3).map(|ny| (destination_x, ny)))
+                        .chain((y..=max_y).map(|ny| (destination_x, ny)))
                         .take_while(|pos| state.players.iter().all(|p| &p.pos != pos))
                         .filter(|(_, y)| *y >= 2)
                         .last()
@@ -89,7 +89,7 @@ impl Player {
                     if let Some(pos) = (destination_x..x)
                         .rev()
                         .map(|nx| (nx, y))
-                        .chain((y..=3).map(|ny| (destination_x, ny)))
+                        .chain((y..=max_y).map(|ny| (destination_x, ny)))
                         .take_while(|pos| state.players.iter().all(|p| &p.pos != pos))
                         .filter(|(_, y)| *y >= 2)
                         .last()
@@ -103,11 +103,6 @@ impl Player {
 
         moves
     }
-}
-
-#[derive(Eq, PartialEq)]
-struct World {
-    tiles: Vec<Vec<Tile>>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -171,27 +166,41 @@ impl PartialOrd for State {
 }
 
 #[allow(dead_code)]
-fn print_state(world: &World, state: &State) {
+fn print_state(state: &State, max_y: usize) {
     println!(
         "{}",
-        world
-            .tiles
-            .iter()
-            .enumerate()
-            .map(|(r, row)| row
-                .iter()
-                .enumerate()
-                .map(
-                    |(c, tile)| if let Some(p) = state.players.iter().find(|p| p.pos == (c, r)) {
-                        char::try_from(p.typ + u32::from('A')).unwrap().to_string()
-                    } else {
-                        match tile {
-                            Wall => '#'.to_string(),
-                            Floor => '.'.to_string(),
-                            Destination(_) => '.'.to_string(),
+        (0..=(max_y + 1))
+            .map(|y| (0..=12)
+                .map(|x| {
+                    (if let Some(p) = state.players.iter().find(|p| p.pos == (x, y)) {
+                        char::try_from(p.typ + u32::from('A')).unwrap()
+                    } else if y == 0 {
+                        '#'
+                    } else if y > max_y {
+                        if x < 2 || x > 10 {
+                            ' '
+                        } else {
+                            '#'
                         }
-                    }
-                )
+                    } else if x == 0 || x == 12 {
+                        if y <= 2 {
+                            '#'
+                        } else {
+                            ' '
+                        }
+                    } else if y >= 2 {
+                        if y > 2 && (x < 2 || x > 10) {
+                            ' '
+                        } else if x <= 2 || x == 4 || x == 6 || x == 8 || x >= 10 {
+                            '#'
+                        } else {
+                            '.'
+                        }
+                    } else {
+                        '.'
+                    })
+                    .to_string()
+                })
                 .collect::<Vec<String>>()
                 .join(""))
             .collect::<Vec<String>>()
@@ -199,36 +208,24 @@ fn print_state(world: &World, state: &State) {
     );
 }
 
-fn parse_world(lines: &[String]) -> (World, Vec<Player>) {
+fn parse_world(lines: &[String]) -> Vec<Player> {
     let mut players = Vec::new();
-    let tiles: Vec<Vec<Tile>> = lines
-        .iter()
-        .enumerate()
-        .map(|(y, line)| {
-            line.chars()
-                .enumerate()
-                .map(|(x, c)| match c {
-                    '#' | ' ' => Wall,
-                    '.' => Floor,
-                    a => {
-                        let typ = u32::from(a) - u32::from('A');
-                        players.push(Player {
-                            typ,
-                            cost: 10usize.pow(typ),
-                            pos: (x, y),
-                            moves: 0,
-                        });
-                        Destination((x as u32 - 3) / 2)
-                    }
-                })
-                .collect()
-        })
-        .collect();
+    for (y, line) in lines.iter().enumerate() {
+        for (x, c) in line.chars().enumerate() {
+            match c {
+                '#' | ' ' | '.' => {}
+                a => {
+                    let typ = u32::from(a) - u32::from('A');
+                    players.push(Player::new(typ, (x, y)));
+                }
+            }
+        }
+    }
 
-    (World { tiles }, players)
+    players
 }
 
-fn dijkstra<'world>(world: &'world World, players: Vec<Player>) -> Option<State> {
+fn dijkstra(players: Vec<Player>, max_y: usize) -> Option<State> {
     let mut queue: BinaryHeap<Reverse<State>> = BinaryHeap::new();
     let mut shortest: HashMap<u128, usize> = HashMap::new();
 
@@ -239,10 +236,10 @@ fn dijkstra<'world>(world: &'world World, players: Vec<Player>) -> Option<State>
     }));
 
     while let Some(Reverse(state)) = queue.pop() {
-        // println!("{} {}", queue.len(), state.len);
-        // println!("{} {} {}", queue.len(), state.len, state.estimate());
-        // print_state(world, &state);
-        // println!();
+        // println!("\n{} {}", queue.len(), state.len);
+        // println!("\n{} {} {}", queue.len(), state.len, state.estimate());
+        // println!("\n{} {} {}", queue.len(), state.len, state.est);
+        // print_state(&state, max_y);
 
         if state.finished() {
             return Some(state);
@@ -258,7 +255,7 @@ fn dijkstra<'world>(world: &'world World, players: Vec<Player>) -> Option<State>
                     .enumerate()
                     .filter(|(_, p)| p.can_move())
                 {
-                    for (pos, cost) in player.available_moves(&state) {
+                    for (pos, cost) in player.available_moves(&state, max_y) {
                         let mut new_state = state.clone();
                         new_state.players[player_i].pos = pos;
                         new_state.players[player_i].moves += 1;
@@ -282,9 +279,36 @@ fn dijkstra<'world>(world: &'world World, players: Vec<Player>) -> Option<State>
 }
 
 pub fn solve(lines: &[String]) -> Solution {
-    let (world, players) = parse_world(lines);
+    let players = parse_world(lines);
 
-    let a_solution = dijkstra(&world, players).unwrap().len;
-    let b_solution = 0;
+    let a_solution = dijkstra(players.clone(), 3).unwrap().len;
+    let b_solution = dijkstra(
+        players
+            .into_iter()
+            .map(|mut p| {
+                let (_, y) = &mut p.pos;
+                if *y > 2 {
+                    *y += 2;
+                }
+                p
+            })
+            .chain(
+                [
+                    Player::new(3, (3, 3)),
+                    Player::new(2, (5, 3)),
+                    Player::new(1, (7, 3)),
+                    Player::new(0, (9, 3)),
+                    Player::new(3, (3, 4)),
+                    Player::new(1, (5, 4)),
+                    Player::new(0, (7, 4)),
+                    Player::new(2, (9, 4)),
+                ]
+                .into_iter(),
+            )
+            .collect(),
+        5,
+    )
+    .unwrap()
+    .len;
     (a_solution.to_string(), b_solution.to_string())
 }
