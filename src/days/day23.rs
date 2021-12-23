@@ -85,18 +85,16 @@ impl Player {
                         let (nx, ny) = pos;
                         moves.push((pos, self.cost * ((nx - x) + (ny - y))));
                     }
-                } else {
-                    if let Some(pos) = (destination_x..x)
-                        .rev()
-                        .map(|nx| (nx, y))
-                        .chain((y..=max_y).map(|ny| (destination_x, ny)))
-                        .take_while(|pos| state.players.iter().all(|p| &p.pos != pos))
-                        .filter(|(_, y)| *y >= 2)
-                        .last()
-                    {
-                        let (nx, ny) = pos;
-                        moves.push((pos, self.cost * ((x - nx) + (ny - y))));
-                    }
+                } else if let Some(pos) = (destination_x..x)
+                    .rev()
+                    .map(|nx| (nx, y))
+                    .chain((y..=max_y).map(|ny| (destination_x, ny)))
+                    .take_while(|pos| state.players.iter().all(|p| &p.pos != pos))
+                    .filter(|(_, y)| *y >= 2)
+                    .last()
+                {
+                    let (nx, ny) = pos;
+                    moves.push((pos, self.cost * ((x - nx) + (ny - y))));
                 }
             }
         }
@@ -126,7 +124,7 @@ impl State {
                 (p.typ, ((x << 2) | y) as u128)
             })
             .collect();
-        keys.sort();
+        keys.sort_unstable();
         keys.into_iter().fold(0, |acc, (_, key)| (acc << 6) | key)
     }
 
@@ -177,7 +175,7 @@ fn print_state(state: &State, max_y: usize) {
                     } else if y == 0 {
                         '#'
                     } else if y > max_y {
-                        if x < 2 || x > 10 {
+                        if !(2..=10).contains(&x) {
                             ' '
                         } else {
                             '#'
@@ -189,7 +187,7 @@ fn print_state(state: &State, max_y: usize) {
                             ' '
                         }
                     } else if y >= 2 {
-                        if y > 2 && (x < 2 || x > 10) {
+                        if y > 2 && !(2..=10).contains(&x) {
                             ' '
                         } else if x <= 2 || x == 4 || x == 6 || x == 8 || x >= 10 {
                             '#'
