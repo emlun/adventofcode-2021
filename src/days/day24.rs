@@ -94,6 +94,268 @@ fn run(program: &[Instruction], input: &[i64]) -> [i64; 4] {
     registers
 }
 
+fn run_hardcode<I: Iterator<Item = i64>>(mut input: I) -> i64 {
+    let mut w = 0;
+    let mut x = 0;
+    let mut y = 0;
+    let mut z = 0;
+
+    w = input.next().unwrap();
+    x = x * 0;
+    x = x + z;
+    x = x % 26;
+    z = z / 1;
+    x = x + 11;
+    x = if x == w { 1 } else { 0 };
+    x = if x == 0 { 1 } else { 0 };
+    y = y * 0;
+    y = y + 25;
+    y = y * x;
+    y = y + 1;
+    z = z * y;
+    y = y * 0;
+    y = y + w;
+    y = y + 8;
+    y = y * x;
+    z = z + y;
+    w = input.next().unwrap();
+    x = x * 0;
+    x = x + z;
+    x = x % 26;
+    z = z / 1;
+    x = x + 12;
+    x = if x == w { 1 } else { 0 };
+    x = if x == 0 { 1 } else { 0 };
+    y = y * 0;
+    y = y + 25;
+    y = y * x;
+    y = y + 1;
+    z = z * y;
+    y = y * 0;
+    y = y + w;
+    y = y + 8;
+    y = y * x;
+    z = z + y;
+    w = input.next().unwrap();
+    x = x * 0;
+    x = x + z;
+    x = x % 26;
+    z = z / 1;
+    x = x + 10;
+    x = if x == w { 1 } else { 0 };
+    x = if x == 0 { 1 } else { 0 };
+    y = y * 0;
+    y = y + 25;
+    y = y * x;
+    y = y + 1;
+    z = z * y;
+    y = y * 0;
+    y = y + w;
+    y = y + 12;
+    y = y * x;
+    z = z + y;
+    w = input.next().unwrap();
+    x = x * 0;
+    x = x + z;
+    x = x % 26;
+    z = z / 26;
+    x = x + -8;
+    x = if x == w { 1 } else { 0 };
+    x = if x == 0 { 1 } else { 0 };
+    y = y * 0;
+    y = y + 25;
+    y = y * x;
+    y = y + 1;
+    z = z * y;
+    y = y * 0;
+    y = y + w;
+    y = y + 10;
+    y = y * x;
+    z = z + y;
+    w = input.next().unwrap();
+    x = x * 0;
+    x = x + z;
+    x = x % 26;
+    z = z / 1;
+    x = x + 15;
+    x = if x == w { 1 } else { 0 };
+    x = if x == 0 { 1 } else { 0 };
+    y = y * 0;
+    y = y + 25;
+    y = y * x;
+    y = y + 1;
+    z = z * y;
+    y = y * 0;
+    y = y + w;
+    y = y + 2;
+    y = y * x;
+    z = z + y;
+    w = input.next().unwrap();
+    x = x * 0;
+    x = x + z;
+    x = x % 26;
+    z = z / 1;
+    x = x + 15;
+    x = if x == w { 1 } else { 0 };
+    x = if x == 0 { 1 } else { 0 };
+    y = y * 0;
+    y = y + 25;
+    y = y * x;
+    y = y + 1;
+    z = z * y;
+    y = y * 0;
+    y = y + w;
+    y = y + 8;
+    y = y * x;
+    z = z + y;
+    w = input.next().unwrap();
+    x = x * 0;
+    x = x + z;
+    x = x % 26;
+    z = z / 26;
+    x = x + -11;
+    x = if x == w { 1 } else { 0 };
+    x = if x == 0 { 1 } else { 0 };
+    y = y * 0;
+    y = y + 25;
+    y = y * x;
+    y = y + 1;
+    z = z * y;
+    y = y * 0;
+    y = y + w;
+    y = y + 4;
+    y = y * x;
+    z = z + y;
+    w = input.next().unwrap();
+    x = x * 0;
+    x = x + z;
+    x = x % 26;
+    z = z / 1;
+    x = x + 10;
+    x = if x == w { 1 } else { 0 };
+    x = if x == 0 { 1 } else { 0 };
+    y = y * 0;
+    y = y + 25;
+    y = y * x;
+    y = y + 1;
+    z = z * y;
+    y = y * 0;
+    y = y + w;
+    y = y + 9;
+    y = y * x;
+    z = z + y;
+    w = input.next().unwrap();
+    x = x * 0;
+    x = x + z;
+    x = x % 26;
+    z = z / 26;
+    x = x + -3;
+    x = if x == w { 1 } else { 0 };
+    x = if x == 0 { 1 } else { 0 };
+    y = y * 0;
+    y = y + 25;
+    y = y * x;
+    y = y + 1;
+    z = z * y;
+    y = y * 0;
+    y = y + w;
+    y = y + 10;
+    y = y * x;
+    z = z + y;
+    w = input.next().unwrap();
+    x = x * 0;
+    x = x + z;
+    x = x % 26;
+    z = z / 1;
+    x = x + 15;
+    x = if x == w { 1 } else { 0 };
+    x = if x == 0 { 1 } else { 0 };
+    y = y * 0;
+    y = y + 25;
+    y = y * x;
+    y = y + 1;
+    z = z * y;
+    y = y * 0;
+    y = y + w;
+    y = y + 3;
+    y = y * x;
+    z = z + y;
+    w = input.next().unwrap();
+    x = x * 0;
+    x = x + z;
+    x = x % 26;
+    z = z / 26;
+    x = x + -3;
+    x = if x == w { 1 } else { 0 };
+    x = if x == 0 { 1 } else { 0 };
+    y = y * 0;
+    y = y + 25;
+    y = y * x;
+    y = y + 1;
+    z = z * y;
+    y = y * 0;
+    y = y + w;
+    y = y + 7;
+    y = y * x;
+    z = z + y;
+    w = input.next().unwrap();
+    x = x * 0;
+    x = x + z;
+    x = x % 26;
+    z = z / 26;
+    x = x + -1;
+    x = if x == w { 1 } else { 0 };
+    x = if x == 0 { 1 } else { 0 };
+    y = y * 0;
+    y = y + 25;
+    y = y * x;
+    y = y + 1;
+    z = z * y;
+    y = y * 0;
+    y = y + w;
+    y = y + 7;
+    y = y * x;
+    z = z + y;
+    w = input.next().unwrap();
+    x = x * 0;
+    x = x + z;
+    x = x % 26;
+    z = z / 26;
+    x = x + -10;
+    x = if x == w { 1 } else { 0 };
+    x = if x == 0 { 1 } else { 0 };
+    y = y * 0;
+    y = y + 25;
+    y = y * x;
+    y = y + 1;
+    z = z * y;
+    y = y * 0;
+    y = y + w;
+    y = y + 2;
+    y = y * x;
+    z = z + y;
+    w = input.next().unwrap();
+    x = x * 0;
+    x = x + z;
+    x = x % 26;
+    z = z / 26;
+    x = x + -16;
+    x = if x == w { 1 } else { 0 };
+    x = if x == 0 { 1 } else { 0 };
+    y = y * 0;
+    y = y + 25;
+    y = y * x;
+    y = y + 1;
+    z = z * y;
+    y = y * 0;
+    y = y + w;
+    y = y + 2;
+    y = y * x;
+    z = z + y;
+
+    z
+}
+
 pub fn solve(lines: &[String]) -> Solution {
     let program: Vec<Instruction> = lines
         .iter()
@@ -107,13 +369,11 @@ pub fn solve(lines: &[String]) -> Solution {
         .rev()
         .filter(|i| !i.to_string().contains('0'))
         .find(|i| {
-            let [_, _, _, z] = run(
-                &program,
-                &dbg!(i)
-                    .to_string()
+            println!("{}", i);
+            let z = run_hardcode(
+                i.to_string()
                     .chars()
-                    .map(|c| c.to_string().parse().unwrap())
-                    .collect::<Vec<i64>>(),
+                    .map(|c| c.to_string().parse().unwrap()),
             );
             z == 0
         })
