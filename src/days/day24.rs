@@ -188,11 +188,13 @@ pub fn solve(lines: &[String]) -> Solution {
 
     dbg!(&program);
     // let sol_a = (0..99_999_999_999_999_i64)
-    let sol_a = (0..99997849523683_i64)
+    let sol_a = (0..99957445554974_i64)
         .rev()
         .filter(|i| !i.to_string().contains('0'))
         .find(|i| {
-            println!("{}", i);
+            if i % 1000000 == 111111 {
+                println!("{}", i);
+            }
             let z = run_hardcode(
                 i.to_string()
                     .chars()
