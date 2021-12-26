@@ -94,85 +94,63 @@ fn run(program: &[Instruction], input: &[i64]) -> [i64; 4] {
     registers
 }
 
+fn step(mut z: i64, w: i64, d: i64, a: i64, b: i64) -> i64 {
+    let x = z % 26 + a;
+    z = z / d;
+    dbg!(w, x);
+    if x == w {
+        z
+    } else {
+        z * 26 + w + b
+    }
+}
+
 fn run_hardcode<I: Iterator<Item = i64>>(mut input: I) -> i64 {
-    let mut w = 0;
-    let mut x = 0;
-    let mut y = 0;
     let mut z = 0;
 
-    w = input.next().unwrap();
-    z = w + 8;
+    dbg!("WOOHOO!");
 
-    w = input.next().unwrap();
-    x = z % 26 + 12;
-    z = if x == w { z } else { z * 26 + w + 8 };
+    z = step(z, input.next().unwrap(), 1, 11, 8);
+    dbg!(z);
 
-    w = input.next().unwrap();
-    x = z % 26 + 10;
-    x = if x == w { 0 } else { 1 };
-    z = z * (25 * x + 1) + (w + 12) * x;
+    z = step(z, input.next().unwrap(), 1, 12, 8);
+    dbg!(z);
 
-    w = input.next().unwrap();
-    x = z % 26 - 8;
-    z = z / 26;
-    x = if x == w { 0 } else { 1 };
-    z = z * (25 * x + 1) + (w + 10) * x;
+    z = step(z, input.next().unwrap(), 1, 10, 12);
+    dbg!(z);
 
-    w = input.next().unwrap();
-    x = z % 26 + 15;
-    x = if x == w { 0 } else { 1 };
-    z = z * (25 * x + 1) + (w + 2) * x;
+    z = step(z, input.next().unwrap(), 26, -8, 10);
+    dbg!(z);
 
-    w = input.next().unwrap();
-    x = z % 26 + 15;
-    x = if x == w { 0 } else { 1 };
-    z = z * (25 * x + 1) + (w + 8) * x;
+    z = step(z, input.next().unwrap(), 1, 15, 2);
+    dbg!(z);
 
-    w = input.next().unwrap();
-    x = z % 26 - 11;
-    z = z / 26;
-    x = if x == w { 0 } else { 1 };
-    z = z * (25 * x + 1) + (w + 4) * x;
+    z = step(z, input.next().unwrap(), 1, 15, 8);
+    dbg!(z);
 
-    w = input.next().unwrap();
-    x = z % 26 + 10;
-    x = if x == w { 0 } else { 1 };
-    z = z * (25 * x + 1) + (w + 9) * x;
+    z = step(z, input.next().unwrap(), 26, -11, 4);
+    dbg!(z);
 
-    w = input.next().unwrap();
-    x = z % 26 - 3;
-    z = z / 26;
-    x = if x == w { 0 } else { 1 };
-    z = z * (25 * x + 1) + (w + 10) * x;
+    z = step(z, input.next().unwrap(), 1, 10, 9);
+    dbg!(z);
 
-    w = input.next().unwrap();
-    x = z % 26 + 15;
-    x = if x == w { 0 } else { 1 };
-    z = z * (25 * x + 1) + (w + 3) * x;
+    z = step(z, input.next().unwrap(), 26, -3, 10);
+    dbg!(z);
 
-    w = input.next().unwrap();
-    x = z % 26 - 3;
-    z = z / 26;
-    x = if x == w { 0 } else { 1 };
-    z = z * (25 * x + 1) + (w + 7) * x;
+    z = step(z, input.next().unwrap(), 1, 15, 3);
+    dbg!(z);
 
-    w = input.next().unwrap();
-    x = z % 26 - 1;
-    z = z / 26;
-    x = if x == w { 0 } else { 1 };
-    z = z * (25 * x + 1) + (w + 7) * x;
+    z = step(z, input.next().unwrap(), 26, -3, 7);
+    dbg!(z);
 
-    w = input.next().unwrap();
-    x = z % 26 - 10;
-    z = z / 26;
-    x = if x == w { 0 } else { 1 };
-    z = z * (25 * x + 1) + (w + 2) * x;
+    z = step(z, input.next().unwrap(), 26, -1, 7);
+    dbg!(z);
 
-    w = input.next().unwrap();
-    x = z % 26 - 16;
-    z = z / 26;
-    x = if x == w { 0 } else { 1 };
-    z = z * (25 * x + 1) + (w + 2) * x;
+    z = step(z, input.next().unwrap(), 26, -10, 2);
+    dbg!(z);
+
+    z = step(z, input.next().unwrap(), 26, -16, 2);
+    dbg!(z);
 
     z
 }
@@ -184,7 +162,7 @@ pub fn solve(lines: &[String]) -> Solution {
         .map(|l| l.parse().unwrap())
         .collect();
 
-    dbg!(&program);
+    // dbg!(&program);
     // let sol_a = (0..99_999_999_999_999_i64)
     let sol_a = (0..=99598963999971_i64)
         .rev()
@@ -202,7 +180,8 @@ pub fn solve(lines: &[String]) -> Solution {
         })
         .unwrap();
 
-    let sol_b = (11111111111111..=99999999999999_i64)
+    let sol_b = [93151411711211_i64]
+        .into_iter()
         .filter(|i| !i.to_string().contains('0'))
         .find(|i| {
             if i % 1000000 == 111111 {
