@@ -101,13 +101,15 @@ fn run_hardcode<I: Iterator<Item = i64>>(mut input: I) -> i64 {
     let mut z = 0;
 
     w = input.next().unwrap();
-    x = if 11 == w { 0 } else { 1 };
-    z = z * (25 * x + 1) + (w + 8) * x;
+    z = w + 8;
 
     w = input.next().unwrap();
     x = z % 26 + 12;
-    x = if x == w { 0 } else { 1 };
-    z = z * (25 * x + 1) + (w + 8) * x;
+    z = if x == w {
+        z
+    } else {
+        z * 26 + w + 8;
+    };
 
     w = input.next().unwrap();
     x = z % 26 + 10;
