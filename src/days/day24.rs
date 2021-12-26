@@ -202,7 +202,7 @@ pub fn solve(lines: &[String]) -> Solution {
         })
         .unwrap();
 
-    let sol_b = (0..99999999999999_i64)
+    let sol_b = (11111111111111..=99999999999999_i64)
         .filter(|i| !i.to_string().contains('0'))
         .find(|i| {
             if i % 1000000 == 111111 {
