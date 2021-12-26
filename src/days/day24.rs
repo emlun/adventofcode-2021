@@ -190,7 +190,7 @@ pub fn solve(lines: &[String]) -> Solution {
 
     dbg!(&program);
     // let sol_a = (0..99_999_999_999_999_i64)
-    let sol_a = (0..99957445554974_i64)
+    let sol_a = (0..=99598963999971_i64)
         .rev()
         .filter(|i| !i.to_string().contains('0'))
         .find(|i| {
@@ -205,7 +205,21 @@ pub fn solve(lines: &[String]) -> Solution {
             z == 0
         })
         .unwrap();
-    let sol_b = 0;
+
+    let sol_b = (0..99999999999999_i64)
+        .filter(|i| !i.to_string().contains('0'))
+        .find(|i| {
+            if i % 1000000 == 111111 {
+                println!("{}", i);
+            }
+            let z = run_hardcode(
+                i.to_string()
+                    .chars()
+                    .map(|c| c.to_string().parse().unwrap()),
+            );
+            z == 0
+        })
+        .unwrap();
 
     (sol_a.to_string(), sol_b.to_string())
 }
