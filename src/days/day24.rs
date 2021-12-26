@@ -105,11 +105,7 @@ fn run_hardcode<I: Iterator<Item = i64>>(mut input: I) -> i64 {
 
     w = input.next().unwrap();
     x = z % 26 + 12;
-    z = if x == w {
-        z
-    } else {
-        z * 26 + w + 8;
-    };
+    z = if x == w { z } else { z * 26 + w + 8 };
 
     w = input.next().unwrap();
     x = z % 26 + 10;
